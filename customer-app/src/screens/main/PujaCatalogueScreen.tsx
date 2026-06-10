@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, TextInput, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Search, SlidersHorizontal } from 'lucide-react-native';
 import { api, Puja } from '../../services/api';
+
+const { width } = Dimensions.get('window');
 
 const MOCK_PUJAS = [
   { id: '1', name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा', base_price: 2100, duration_hrs: 2.5, deity: 'Vishnu', icon: '🔱', occasion: 'Festivals' },

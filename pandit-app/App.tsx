@@ -21,7 +21,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <StatusBar style="light" backgroundColor="#8B0000" />
+        <StatusBar style="light" />
         <AppNavigator />
       </SafeAreaProvider>
     </QueryClientProvider>

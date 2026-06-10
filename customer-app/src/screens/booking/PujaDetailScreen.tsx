@@ -133,7 +133,7 @@ export default function PujaDetailScreen({ route, navigation }: any) {
           <Text style={styles.samagriSub}>These are the key items needed. You can choose to have us deliver a complete kit during checkout.</Text>
           
           <View style={styles.samagriGrid}>
-            {(puja.samagri_list || MOCK_SAMAGRI).map((item, index) => (
+            {(puja.samagri_list || MOCK_SAMAGRI).map((item: string, index: number) => (
               <View key={index} style={styles.samagriItem}>
                 <View style={styles.bullet} />
                 <Text style={styles.samagriText}>{item}</Text>

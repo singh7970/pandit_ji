@@ -1,6 +1,18 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export interface Puja {
+  id: string;
+  name_en: string;
+  name_hi?: string;
+  description?: string;
+  duration_hrs: number;
+  base_price: number;
+  tier_required?: string;
+  samagri_list?: string[];
+  deity?: string;
+}
+
 // In Expo development, localhost works for iOS simulator, but 10.0.2.2 is needed for Android.
 // You can also replace this with your machine's local IP (e.g., http://192.168.1.X:8000)
 const BASE_URL = 'http://192.168.31.242:8000';

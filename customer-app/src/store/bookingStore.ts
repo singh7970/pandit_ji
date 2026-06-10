@@ -3,8 +3,8 @@ import { create } from 'zustand';
 export interface Puja {
   id: string;
   name_en: string;
-  name_hi: string;
-  description: string;
+  name_hi?: string;
+  description?: string;
   duration_hrs: number;
   base_price: number;
   tier_required?: string;

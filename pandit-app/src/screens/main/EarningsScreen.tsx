@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator, Dimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { IndianRupee, TrendingUp, Award, Clock } from 'lucide-react-native';
 import { api } from '../../services/api';
+
+const { width } = Dimensions.get('window');
 
 const MOCK_TRANS = [
   { id: 't1', desc: 'Satyanarayan Puja (Gurgaon)', date: 'June 10', amt: 1722, type: 'PAYOUT' },
