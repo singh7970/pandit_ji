@@ -71,3 +71,7 @@ media/
 # ─── Raw dev notes (local only) ───────────────────────────────────────────
 rawdata/
 rawdata */
+
+# ─── Agent-specific files (local only) ─────────────────────────────────────
+.agents/
+skills-lock.json
