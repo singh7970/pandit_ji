@@ -14,6 +14,14 @@ export default function UnderReviewScreen() {
     });
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.warn("Logout failed:", err);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -34,7 +42,7 @@ export default function UnderReviewScreen() {
           <Text style={styles.supportButtonText}>Contact Admin Support</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={logout} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.8}>
           <Text style={styles.logoutText}>{t('logout')}</Text>
         </TouchableOpacity>
       </View>
