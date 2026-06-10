@@ -105,7 +105,11 @@ export default function ProfileScreen({ navigation }: any) {
           <Text style={styles.groupTitle}>Account & Services</Text>
 
           {/* Saved Addresses */}
-          <TouchableOpacity style={styles.row} activeOpacity={0.8}>
+          <TouchableOpacity 
+            style={styles.row} 
+            onPress={() => navigation.navigate('SavedAddresses')} 
+            activeOpacity={0.8}
+          >
             <View style={[styles.iconWrapper, { backgroundColor: '#FFF8F0' }]}>
               <MapPin size={20} color="#FF9933" />
             </View>

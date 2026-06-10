@@ -22,6 +22,7 @@ import PujaDetailScreen from '../screens/booking/PujaDetailScreen';
 import BookingFlowScreen from '../screens/booking/BookingFlowScreen';
 import BookingDetailScreen from '../screens/booking/BookingDetailScreen';
 import LiveTrackingScreen from '../screens/booking/LiveTrackingScreen';
+import SavedAddressesScreen from '../screens/main/SavedAddressesScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -113,6 +114,7 @@ export default function AppNavigator() {
             <Stack.Screen name="BookingFlow" component={BookingFlowScreen} />
             <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
             <Stack.Screen name="LiveTracking" component={LiveTrackingScreen} />
+            <Stack.Screen name="SavedAddresses" component={SavedAddressesScreen} />
           </>
         )}
       </Stack.Navigator>
