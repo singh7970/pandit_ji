@@ -80,14 +80,14 @@ export default function HomeScreen({ navigation }: any) {
         
         {/* Active/Offline Duty Status Toggle */}
         <View style={styles.statusContainer}>
-          <Text style={[styles.statusText, { color: isActiveDuty ? '#22C55E' : '#888888' }]}>
+          <Text style={[styles.statusText, { color: isActiveDuty ? '#10B981' : '#888888' }]}>
             {isActiveDuty ? t('activeStatusOn') : t('activeStatusOff')}
           </Text>
           <Switch
             value={isActiveDuty}
             onValueChange={handleToggleDuty}
-            trackColor={{ false: '#EFEBE4', true: '#22C55E' }}
-            thumbColor="#FFFFFF"
+            trackColor={{ false: '#EFEBE4', true: '#D1FAE5' }}
+            thumbColor={isActiveDuty ? '#10B981' : '#F4F3F0'}
           />
         </View>
       </View>

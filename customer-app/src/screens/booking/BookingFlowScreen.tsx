@@ -258,8 +258,8 @@ export default function BookingFlowScreen({ navigation }: any) {
               <Switch
                 value={kitOrdered}
                 onValueChange={setKitOrdered}
-                trackColor={{ false: '#EFEBE4', true: '#FF9933' }}
-                thumbColor="#FFFFFF"
+                trackColor={{ false: '#EFEBE4', true: '#FFEADB' }}
+                thumbColor={kitOrdered ? '#FF9933' : '#F4F3F0'}
               />
             </View>
           </View>
