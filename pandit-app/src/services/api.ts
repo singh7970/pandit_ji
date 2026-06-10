@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'http://192.168.31.242:8000';
+const BASE_URL = 'https://gentle-plants-rescue.loca.lt';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
