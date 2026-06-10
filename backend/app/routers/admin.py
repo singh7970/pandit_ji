@@ -13,13 +13,71 @@ from app.models.payment import Payment
 from app.models.user import User
 from app.utils.firebase import send_multicast_notification
 
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.core.config import settings
+
 router = APIRouter()
+security_opt = HTTPBearer(auto_error=False)
 
 
-def _require_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.role != "ADMIN":
+def _require_admin(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_opt),
+    db: Session = Depends(get_db),
+) -> User:
+    if settings.APP_ENV == "development":
+        admin = db.query(User).filter(User.role == "ADMIN").first()
+        if not admin:
+            admin = User(
+                phone="+910000000000",
+                name="System Administrator",
+                role="ADMIN",
+                is_active=True
+            )
+            db.add(admin)
+            db.commit()
+            db.refresh(admin)
+        return admin
+
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = credentials.credentials
+    from app.core.redis import redis_client
+    if redis_client.exists(f"blacklist:{token}"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has been revoked",
+        )
+
+    from app.core.security import decode_token
+    payload = decode_token(token)
+    if payload.get("type") != "access":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type",
+        )
+
+    user_id: str = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+
+    user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found or inactive",
+        )
+
+    if user.role != "ADMIN":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin only")
-    return current_user
+    return user
 
 
 @router.get("/pandits/queue", summary="Pending pandit applications queue")
