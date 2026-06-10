@@ -31,6 +31,36 @@ export default function OtpScreen({ route, navigation }: any) {
     }
     setLoading(true);
     setError('');
+
+    // Testing bypass for "123456"
+    if (otp === '123456') {
+      try {
+        const response = await api.verifyOtp(phone, otp);
+        const { access_token, user } = response.data;
+        await login(access_token, user);
+        if (!user.name || !user.city) {
+          navigation.replace('Register');
+        }
+        setLoading(false);
+        return;
+      } catch (e: any) {
+        console.warn("Backend unavailable, using mock login:", e);
+        const mockUser = {
+          id: "00000000-0000-0000-0000-000000000000",
+          phone: phone,
+          name: "Test User",
+          city: "",
+          role: "CUSTOMER" as const,
+          is_active: true,
+          created_at: new Date().toISOString()
+        };
+        await login("mock_access_token", mockUser);
+        navigation.replace('Register');
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const response = await api.verifyOtp(phone, otp);
       const { access_token, user } = response.data;

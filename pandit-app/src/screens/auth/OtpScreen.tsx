@@ -29,6 +29,41 @@ export default function OtpScreen({ route, navigation }: any) {
     }
     setLoading(true);
     setError('');
+
+    // Testing bypass for "123456"
+    if (otp === '123456') {
+      try {
+        const response = await api.verifyOtp(phone, otp);
+        const { access_token, user } = response.data;
+        await login(access_token, user);
+        
+        const profileStatus = user.pandit_profile?.status;
+        if (!profileStatus) {
+          navigation.replace('Onboarding');
+        } else if (profileStatus === 'PENDING') {
+          navigation.replace('UnderReview');
+        }
+        setLoading(false);
+        return;
+      } catch (e: any) {
+        console.warn("Backend unavailable, using mock login:", e);
+        const mockUser = {
+          id: "00000000-0000-0000-0000-000000000000",
+          phone: phone,
+          name: "Test Pandit",
+          city: "",
+          role: "PANDIT" as const,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          pandit_profile: null
+        };
+        await login("mock_access_token", mockUser);
+        navigation.replace('Onboarding');
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const response = await api.verifyOtp(phone, otp);
       const { access_token, user } = response.data;
