@@ -84,7 +84,6 @@ const styles = StyleSheet.create({
     fontSize: 50,
   },
   logoTitle: {
-    fontFamily: 'Poppins-Bold',
     fontSize: 48,
     color: '#FFFDF7',
     fontWeight: 'bold',
