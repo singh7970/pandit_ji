@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --saffron: #FF9933;
+  --maroon: #8B0000;
+  --cream: #FFFDF7;
+}
+
+body {
+  background-color: #f8f7f2;
+  color: #1A1A1A;
+}
+
+* { box-sizing: border-box; }
+
+.font-heading { font-family: 'Poppins', sans-serif; }
+
+/* Sidebar active state */
+.nav-link-active {
+  background: linear-gradient(90deg, #FF9933 0%, #ffb347 100%);
+  color: white;
+}
+
+/* Card hover */
+.stat-card:hover { transform: translateY(-2px); transition: transform 0.2s ease; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #FF9933; border-radius: 3px; }
