@@ -167,6 +167,11 @@ def analytics(
     revenue_result = db.query(func.sum(Booking.platform_fee)).filter(Booking.status == "COMPLETED").scalar()
     revenue = float(revenue_result or 0)
 
+    # Dynamic average rating from reviews
+    from app.models.review import Review
+    avg_rating_result = db.query(func.avg(Review.rating)).scalar()
+    avg_rating = round(float(avg_rating_result), 1) if avg_rating_result else 5.0
+
     return {
         "gmv": gmv,
         "revenue": revenue,
@@ -176,6 +181,7 @@ def analytics(
         "active_pandits": total_pandits,
         "pending_pandits": pending_pandits,
         "completion_rate": round(completed / total_bookings * 100, 1) if total_bookings else 0,
+        "avg_rating": avg_rating,
     }
 
 

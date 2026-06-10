@@ -24,6 +24,7 @@ interface Analytics {
   gmv: number; revenue: number; total_bookings: number;
   completed_bookings: number; total_customers: number;
   active_pandits: number; pending_pandits: number; completion_rate: number;
+  avg_rating: number;
 }
 
 export default function DashboardPage() {
@@ -39,6 +40,7 @@ export default function DashboardPage() {
           gmv: 134000, revenue: 24120, total_bookings: 248,
           completed_bookings: 201, total_customers: 183,
           active_pandits: 32, pending_pandits: 7, completion_rate: 81.0,
+          avg_rating: 4.7,
         });
       })
       .finally(() => setLoading(false));
@@ -105,7 +107,7 @@ export default function DashboardPage() {
         {[
           { label: "Customers", value: data!.total_customers, icon: "👤" },
           { label: "Completed Pujas", value: data!.completed_bookings, icon: "🕉️" },
-          { label: "Avg Rating", value: "4.7 ★", icon: "⭐" },
+          { label: "Avg Rating", value: `${data!.avg_rating} ★`, icon: "⭐" },
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-50 flex items-center gap-4">
             <span className="text-3xl">{s.icon}</span>
