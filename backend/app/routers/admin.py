@@ -172,6 +172,51 @@ def analytics(
     avg_rating_result = db.query(func.avg(Review.rating)).scalar()
     avg_rating = round(float(avg_rating_result), 1) if avg_rating_result else 5.0
 
+    # Calculate monthly GMV trend dynamically
+    import calendar
+    trend_query = db.query(
+        func.date_trunc('month', Booking.created_at).label('month_date'),
+        func.sum(Booking.amount).label('gmv')
+    ).filter(
+        Booking.status == "COMPLETED"
+    ).group_by(
+        'month_date'
+    ).order_by(
+        'month_date'
+    ).all()
+
+    trend_data = []
+    for row in trend_query:
+        m_name = row.month_date.strftime("%b")
+        trend_data.append({"month": m_name, "gmv": float(row.gmv or 0)})
+
+    if not trend_data:
+        import datetime
+        current_month = datetime.datetime.now().month
+        for i in range(5, -1, -1):
+            m_num = ((current_month - i - 1) % 12) + 1
+            m_name = calendar.month_abbr[m_num]
+            trend_data.append({"month": m_name, "gmv": 0.0})
+
+    # Calculate Puja Mix dynamically
+    from app.models.puja import Puja
+    puja_mix_query = db.query(
+        Puja.name_en.label('name'),
+        func.count(Booking.id).label('value')
+    ).join(
+        Booking, Booking.puja_id == Puja.id
+    ).filter(
+        Booking.status == "COMPLETED"
+    ).group_by(
+        Puja.name_en
+    ).all()
+
+    puja_mix = [{"name": row.name, "value": int(row.value)} for row in puja_mix_query]
+    if not puja_mix:
+        puja_mix = [
+            {"name": "No Completed Pujas", "value": 1}
+        ]
+
     return {
         "gmv": gmv,
         "revenue": revenue,
@@ -182,6 +227,8 @@ def analytics(
         "pending_pandits": pending_pandits,
         "completion_rate": round(completed / total_bookings * 100, 1) if total_bookings else 0,
         "avg_rating": avg_rating,
+        "gmv_trend": trend_data,
+        "puja_mix": puja_mix,
     }
 
 

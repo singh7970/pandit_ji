@@ -25,6 +25,8 @@ interface Analytics {
   completed_bookings: number; total_customers: number;
   active_pandits: number; pending_pandits: number; completion_rate: number;
   avg_rating: number;
+  gmv_trend: { month: string; gmv: number }[];
+  puja_mix: { name: string; value: number }[];
 }
 
 export default function DashboardPage() {
@@ -41,6 +43,8 @@ export default function DashboardPage() {
           completed_bookings: 201, total_customers: 183,
           active_pandits: 32, pending_pandits: 7, completion_rate: 81.0,
           avg_rating: 4.7,
+          gmv_trend: MOCK_TREND,
+          puja_mix: PUJA_MIX,
         });
       })
       .finally(() => setLoading(false));
@@ -71,7 +75,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-gray-50">
           <h2 className="font-heading font-semibold text-gray-800 mb-4">GMV Trend</h2>
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={MOCK_TREND}>
+            <AreaChart data={data!.gmv_trend}>
               <defs>
                 <linearGradient id="gmvGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#FF9933" stopOpacity={0.2} />
@@ -92,9 +96,9 @@ export default function DashboardPage() {
           <h2 className="font-heading font-semibold text-gray-800 mb-4">Puja Mix</h2>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
-              <Pie data={PUJA_MIX} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
+              <Pie data={data!.puja_mix} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
                 dataKey="value" paddingAngle={3}>
-                {PUJA_MIX.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                {data!.puja_mix.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
               <Legend iconType="circle" iconSize={8} formatter={(v) => <span className="text-xs text-gray-600">{v}</span>} />
             </PieChart>
