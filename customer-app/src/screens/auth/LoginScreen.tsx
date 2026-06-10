@@ -45,7 +45,7 @@ export default function LoginScreen({ navigation }: any) {
                   <Text style={styles.prefix}>+91</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="98765 43210"
+                    placeholder="Enter your number"
                     placeholderTextColor="#A0988E"
                     keyboardType="number-pad"
                     maxLength={10}
@@ -143,7 +143,12 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     fontWeight: '600',
     height: '100%',
-  },
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      },
+    }),
+  } as any,
   errorText: {
     fontSize: 12,
     color: '#EF4444',
