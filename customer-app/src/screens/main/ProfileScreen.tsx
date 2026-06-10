@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Switch, Alert, Share } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Switch, Alert, Share, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { User, MapPin, Globe, Bell, LogOut, Shield, HelpCircle, Share2, ChevronRight } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
@@ -10,21 +10,27 @@ export default function ProfileScreen({ navigation }: any) {
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout from PanditJi?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Logout', 
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-            // Store logout automatically triggers stack switch in navigator
+    if (Platform.OS === 'web') {
+      const confirm = window.confirm('Are you sure you want to logout from PanditJi?');
+      if (confirm) {
+        logout();
+      }
+    } else {
+      Alert.alert(
+        'Logout',
+        'Are you sure you want to logout from PanditJi?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Logout', 
+            style: 'destructive',
+            onPress: async () => {
+              await logout();
+            }
           }
-        }
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const toggleLanguage = async () => {
