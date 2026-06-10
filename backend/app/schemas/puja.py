@@ -17,7 +17,7 @@ class PujaBase(BaseModel):
     duration_hrs: Optional[float] = None
     base_price: Optional[float] = None
     tier_required: Optional[str] = None
-    samagri_list: Optional[List[SamagriItem]] = []
+    samagri_list: Optional[List[str]] = []
     deity: Optional[str] = None
     occasion_tags: Optional[List[str]] = []
     image_url: Optional[str] = None
@@ -34,7 +34,7 @@ class PujaUpdate(BaseModel):
     duration_hrs: Optional[float] = None
     base_price: Optional[float] = None
     tier_required: Optional[str] = None
-    samagri_list: Optional[List[SamagriItem]] = None
+    samagri_list: Optional[List[str]] = None
     deity: Optional[str] = None
     occasion_tags: Optional[List[str]] = None
     image_url: Optional[str] = None

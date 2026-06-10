@@ -17,6 +17,11 @@ if (Platform.OS === 'web') {
       margin: 0;
       padding: 0;
     }
+    #root > div {
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
   `;
   document.head.appendChild(style);
 }
