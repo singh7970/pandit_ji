@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, ChevronRight, Award, User, BookOpen, ShieldAlert } from 'lucide-react-native';
@@ -33,6 +33,19 @@ export default function OnboardingScreen({ navigation }: any) {
   const [experience, setExperience] = useState('5');
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [selectedPujas, setSelectedPujas] = useState<string[]>([]);
+  const [pujas, setPujas] = useState<{ id: string; name: string }[]>(PUJAS);
+
+  useEffect(() => {
+    api.getPujas()
+      .then((res) => {
+        if (res.data && Array.isArray(res.data)) {
+          setPujas(res.data.map((p: any) => ({ id: p.id, name: p.name })));
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to fetch pujas from DB:", err);
+      });
+  }, []);
 
   const handleToggleLanguage = (lang: string) => {
     setSelectedLanguages((prev) => 
@@ -68,7 +81,7 @@ export default function OnboardingScreen({ navigation }: any) {
     setSubmitting(true);
     try {
       // 1. Update general user profile name/city
-      await api.updatePanditProfile({
+      await api.updateProfile({
         name,
         city,
       });
@@ -237,7 +250,7 @@ export default function OnboardingScreen({ navigation }: any) {
 
             <Text style={[styles.label, { marginTop: 24 }]}>Pujas Specialisation</Text>
             <View style={styles.listContainer}>
-              {PUJAS.map((puja) => {
+              {pujas.map((puja) => {
                 const isSelected = selectedPujas.includes(puja.name);
                 return (
                   <TouchableOpacity

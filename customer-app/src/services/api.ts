@@ -15,7 +15,7 @@ export interface Puja {
 
 // In Expo development, localhost works for iOS simulator, but 10.0.2.2 is needed for Android.
 // You can also replace this with your machine's local IP (e.g., http://192.168.1.X:8000)
-const BASE_URL = 'https://gentle-plants-rescue.loca.lt';
+const BASE_URL = 'https://clever-seas-serve.loca.lt';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,

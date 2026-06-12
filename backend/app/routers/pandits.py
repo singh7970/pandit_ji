@@ -12,17 +12,23 @@ from app.schemas.booking import AvailabilitySlotCreate, AvailabilitySlotResponse
 from app.services.booking import find_top_pandits
 from app.utils.s3 import upload_file
 
+from pydantic import BaseModel
+
+class PanditApplyRequest(BaseModel):
+    sampraday: str
+    specialisations: List[str]
+    languages: List[str]
+    experience_years: int
+    bio: str = ""
+    photo_url: Optional[str] = None
+    document_urls: Optional[List[str]] = None
+
 router = APIRouter()
 
 
 @router.post("/apply", summary="Submit pandit application with documents")
 async def apply_as_pandit(
-    sampraday: str = Form(...),
-    specialisations: str = Form(...),  # comma-separated puja IDs
-    languages: str = Form(...),
-    experience_years: int = Form(...),
-    bio: str = Form(""),
-    documents: List[UploadFile] = File(...),
+    body: PanditApplyRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -34,22 +40,15 @@ async def apply_as_pandit(
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Application already submitted")
 
-    # Upload documents to S3
-    doc_urls = []
-    for doc in documents:
-        content = await doc.read()
-        key = f"pandit-docs/{current_user.id}/{doc.filename}"
-        url = upload_file(content, key, doc.content_type or "application/pdf")
-        doc_urls.append(url)
-
     profile = PanditProfile(
         user_id=current_user.id,
-        sampraday=sampraday,
-        specialisations=[s.strip() for s in specialisations.split(",")],
-        languages=[l.strip() for l in languages.split(",")],
-        experience_years=experience_years,
-        bio=bio,
-        document_urls=doc_urls,
+        sampraday=body.sampraday,
+        specialisations=body.specialisations,
+        languages=body.languages,
+        experience_years=body.experience_years,
+        bio=body.bio,
+        photo_url=body.photo_url,
+        document_urls=body.document_urls or [],
         status="PENDING",
     )
     db.add(profile)

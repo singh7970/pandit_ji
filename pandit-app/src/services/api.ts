@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'https://gentle-plants-rescue.loca.lt';
+const BASE_URL = 'https://clever-seas-serve.loca.lt';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -24,12 +24,13 @@ apiClient.interceptors.request.use(
 
 export const api = {
   // Auth
-  sendOtp: (phone: string) => apiClient.post('/auth/send-otp', { phone }),
-  verifyOtp: (phone: string, otp: string) => apiClient.post('/auth/verify-otp', { phone, otp }),
+  sendOtp: (phone: string, mode?: string) => apiClient.post('/auth/send-otp', { phone, mode }),
+  verifyOtp: (phone: string, otp: string, name?: string, role?: string) => apiClient.post('/auth/verify-otp', { phone, otp, name, role: role || 'PANDIT' }),
   refreshToken: (refreshToken: string) => apiClient.post('/auth/refresh', { refresh_token: refreshToken }),
 
   // User
   getProfile: () => apiClient.get('/users/me'),
+  updateProfile: (data: { name: string; city: string }) => apiClient.put('/users/me', data),
   updatePanditProfile: (data: any) => apiClient.put('/pandits/me', data),
   applyPandit: (applicationData: {
     sampraday: string;
@@ -56,4 +57,7 @@ export const api = {
 
   // Payments / Earnings
   getEarnings: () => apiClient.get('/payments/earnings'),
+
+  // Catalogue
+  getPujas: () => apiClient.get('/pujas'),
 };

@@ -64,14 +64,10 @@ export default function PanditsPage() {
     setLoading(true);
     endpoints.panditQueue()
       .then((r) => {
-        if (r.data && r.data.length > 0) {
-          setApps(r.data);
-        } else {
-          setApps(MOCK_APPLICATIONS);
-        }
+        setApps(r.data || []);
       })
       .catch(() => {
-        setApps(MOCK_APPLICATIONS);
+        setApps([]);
       })
       .finally(() => setLoading(false));
   };

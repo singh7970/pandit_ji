@@ -30,11 +30,17 @@ export default function LoginScreen({ navigation }: any) {
           <Formik
             initialValues={{ phone: '' }}
             validationSchema={PhoneSchema}
-            onSubmit={async (values, { setSubmitting }) => {
+            onSubmit={async (values, { setSubmitting, setFieldError }) => {
               const fullPhone = `+91${values.phone}`;
-              // Skip sendOtp call for offline testing
-              setSubmitting(false);
-              navigation.navigate('Otp', { phone: fullPhone });
+              try {
+                await api.sendOtp(fullPhone);
+                navigation.navigate('Otp', { phone: fullPhone });
+              } catch (err: any) {
+                const errMsg = err.response?.data?.detail || 'Failed to send OTP. Please try again.';
+                setFieldError('phone', errMsg);
+              } finally {
+                setSubmitting(false);
+              }
             }}
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (

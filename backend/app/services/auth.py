@@ -7,14 +7,26 @@ from app.models.user import User
 from app.schemas.user import TokenResponse, UserResponse
 
 
-def get_or_create_user(db: Session, phone: str) -> User:
+def get_or_create_user(db: Session, phone: str, name: str = None, role: str = None) -> User:
     """Return existing user or create a new one."""
     user = db.query(User).filter(User.phone == phone).first()
     if not user:
-        user = User(phone=phone, role="CUSTOMER")
+        db_role = role or "CUSTOMER"
+        user = User(phone=phone, name=name, role=db_role)
         db.add(user)
         db.commit()
         db.refresh(user)
+    else:
+        updated = False
+        if name and not user.name:
+            user.name = name
+            updated = True
+        if role and user.role != role:
+            user.role = role
+            updated = True
+        if updated:
+            db.commit()
+            db.refresh(user)
     return user
 
 

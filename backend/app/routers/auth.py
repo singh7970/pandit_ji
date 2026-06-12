@@ -21,12 +21,28 @@ router = APIRouter()
 async def send_otp(
     body: SendOTPRequest,
     background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
 ):
     if is_rate_limited(body.phone):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many OTP requests. Try again in 1 hour.",
         )
+
+    # Check user registration status based on mode
+    if body.mode:
+        from app.models.user import User
+        user = db.query(User).filter(User.phone == body.phone).first()
+        if body.mode == "signup" and user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Mobile number is already registered. Please login instead.",
+            )
+        elif body.mode == "login" and not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Mobile number is not registered. Please sign up first.",
+            )
 
     otp = generate_otp()
     store_otp(body.phone, otp)
@@ -45,7 +61,7 @@ def verify_otp_endpoint(body: VerifyOTPRequest, db: Session = Depends(get_db)):
             detail="Invalid or expired OTP",
         )
 
-    user = get_or_create_user(db, body.phone)
+    user = get_or_create_user(db, body.phone, body.name, body.role)
     return create_tokens(user)
 
 

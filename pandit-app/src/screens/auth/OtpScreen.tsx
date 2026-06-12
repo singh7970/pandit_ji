@@ -5,7 +5,7 @@ import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 
 export default function OtpScreen({ route, navigation }: any) {
-  const { phone } = route.params;
+  const { phone, mode, name } = route.params || {};
   const { t } = useTranslation();
   const login = useAuthStore((state) => state.login);
 
@@ -33,7 +33,7 @@ export default function OtpScreen({ route, navigation }: any) {
     // Testing bypass for "123456"
     if (otp === '123456') {
       try {
-        const response = await api.verifyOtp(phone, otp);
+        const response = await api.verifyOtp(phone, otp, name, 'PANDIT');
         const { access_token, user } = response.data;
         await login(access_token, user);
         
@@ -50,7 +50,7 @@ export default function OtpScreen({ route, navigation }: any) {
         const mockUser = {
           id: "00000000-0000-0000-0000-000000000000",
           phone: phone,
-          name: "Test Pandit",
+          name: name || "Test Pandit",
           city: "",
           role: "PANDIT" as const,
           is_active: true,
@@ -65,7 +65,7 @@ export default function OtpScreen({ route, navigation }: any) {
     }
 
     try {
-      const response = await api.verifyOtp(phone, otp);
+      const response = await api.verifyOtp(phone, otp, name, 'PANDIT');
       const { access_token, user } = response.data;
       
       await login(access_token, user);

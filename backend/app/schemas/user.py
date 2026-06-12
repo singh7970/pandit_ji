@@ -38,11 +38,14 @@ class AddressCreate(BaseModel):
 
 class SendOTPRequest(BaseModel):
     phone: str = Field(..., min_length=10, max_length=15, example="9876543210")
+    mode: Optional[str] = Field(None, description="login or signup")
 
 
 class VerifyOTPRequest(BaseModel):
     phone: str = Field(..., min_length=10, max_length=15)
     otp: str = Field(..., min_length=6, max_length=6)
+    name: Optional[str] = None
+    role: Optional[str] = None
 
 
 class TokenResponse(BaseModel):
