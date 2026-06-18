@@ -98,6 +98,24 @@ def pandit_queue(
     return result
 
 
+@router.get("/pandits/all", summary="Get list of all registered pandits")
+def get_all_pandits(
+    db: Session = Depends(get_db),
+    _: User = Depends(_require_admin),
+):
+    profiles = (
+        db.query(PanditProfile)
+        .order_by(PanditProfile.created_at.desc())
+        .all()
+    )
+    result = []
+    for p in profiles:
+        user = db.query(User).filter(User.id == p.user_id).first()
+        if user:
+            result.append({"profile": p, "user": user})
+    return result
+
+
 @router.put("/pandits/{pandit_id}/approve", summary="Approve pandit application")
 def approve_pandit(
     pandit_id: str,

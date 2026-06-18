@@ -79,6 +79,7 @@ export const endpoints = {
   customers: () => api.get("/admin/customers"),
   paymentsList: () => api.get("/admin/payments"),
   panditQueue: () => api.get("/admin/pandits/queue"),
+  allPandits: () => api.get("/admin/pandits/all"),
   approvePandit: (id: string, tier: string) =>
     api.put(`/admin/pandits/${id}/approve?tier=${tier}`),
   rejectPandit: (id: string, reason: string) =>

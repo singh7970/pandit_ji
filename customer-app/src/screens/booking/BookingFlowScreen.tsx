@@ -775,7 +775,9 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     fontWeight: '600',
     padding: 0,
-  },
+    borderWidth: 0,
+    outlineStyle: 'none',
+  } as any,
   infoNote: {
     flexDirection: 'row',
     alignItems: 'center',

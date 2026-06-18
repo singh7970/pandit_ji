@@ -171,7 +171,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#1A1A1A',
     height: '100%',
-  },
+    borderWidth: 0,
+    outlineStyle: 'none',
+  } as any,
   filterWrapper: {
     marginTop: 16,
     marginBottom: 8,

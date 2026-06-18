@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         outlineStyle: 'none',
+        borderWidth: 0,
       },
     }),
   } as any,

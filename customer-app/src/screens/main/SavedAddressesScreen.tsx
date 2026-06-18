@@ -418,6 +418,7 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     fontWeight: '600',
     width: '100%',
+    borderWidth: 0,
     outlineStyle: 'none',
   } as any,
   modalButtons: {
