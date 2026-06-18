@@ -20,28 +20,34 @@ const MOCK_SAMAGRI = [
 export default function PujaDetailScreen({ route, navigation }: any) {
   const { pujaId } = route.params;
   const { t } = useTranslation();
-  const { setSelectedPuja, resetBooking } = useBookingStore();
-  const [puja, setPuja] = useState<Puja | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { selectedPuja, setSelectedPuja, resetBooking } = useBookingStore();
+  const [puja, setPuja] = useState<Puja | null>(selectedPuja);
+  const [loading, setLoading] = useState(!selectedPuja);
 
   useEffect(() => {
+    if (selectedPuja && (!puja || puja.id !== selectedPuja.id)) {
+      setPuja(selectedPuja);
+    }
+    
     api.getPujaDetail(pujaId)
       .then((res) => {
         setPuja(res.data);
       })
       .catch(() => {
-        // Fallback for development/testing
-        setPuja({
-          id: pujaId,
-          name_en: 'Satyanarayan Puja',
-          name_hi: 'सत्यनारायण पूजा',
-          description: 'The Satyanarayan Puja is a ritual performed to offer gratitude to Lord Vishnu. It brings peace, prosperity, and happiness to the household and is usually performed on auspicious occasions, housewarmings, or full moon days.',
-          duration_hrs: 2.5,
-          base_price: 2100,
-          tier_required: 'GOLD',
-          samagri_list: MOCK_SAMAGRI,
-          deity: 'Lord Vishnu',
-        });
+        // Fallback for development/testing if we don't have it
+        if (!puja) {
+          setPuja({
+            id: pujaId,
+            name_en: 'Satyanarayan Puja',
+            name_hi: 'सत्यनारायण पूजा',
+            description: 'The Satyanarayan Puja is a ritual performed to offer gratitude to Lord Vishnu. It brings peace, prosperity, and happiness to the household and is usually performed on auspicious occasions, housewarmings, or full moon days.',
+            duration_hrs: 2.5,
+            base_price: 2100,
+            tier_required: 'GOLD',
+            samagri_list: MOCK_SAMAGRI,
+            deity: 'Lord Vishnu',
+          });
+        }
       })
       .finally(() => setLoading(false));
   }, [pujaId]);
@@ -53,7 +59,7 @@ export default function PujaDetailScreen({ route, navigation }: any) {
     }
   };
 
-  if (loading) {
+  if (loading && !puja) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#FF9933" />

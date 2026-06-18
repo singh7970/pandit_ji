@@ -64,6 +64,17 @@ export default function BookingFlowScreen({ navigation }: any) {
       .finally(() => setLoadingPujas(false));
   }, []);
 
+  useEffect(() => {
+    if (selectedPuja && pujas.length > 0) {
+      const match = pujas.find(
+        p => p.id === selectedPuja.id || p.name_en.toLowerCase() === selectedPuja.name_en.toLowerCase()
+      );
+      if (match && match.id !== selectedPuja.id) {
+        setSelectedPuja(match);
+      }
+    }
+  }, [pujas, selectedPuja]);
+
   const handleNext = () => {
     if (currentStep === 1) {
       if (!selectedPuja) {

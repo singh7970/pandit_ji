@@ -68,9 +68,9 @@ export default function HomeScreen({ navigation }: any) {
   };
 
   const handleQuickBook = () => {
-    // Direct booking flow
-    if (pujas.length > 0) {
-      handlePujaSelect(pujas[0]);
+    const target = pujas.find(p => p.name_en.toLowerCase().includes('satyanarayan')) || pujas[0];
+    if (target) {
+      handlePujaSelect(target);
     }
   };
 
