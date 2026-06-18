@@ -26,8 +26,27 @@ const STATUS_COLORS: Record<string, string> = {
 export default function BookingsScreen({ navigation }: any) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [bookings, setBookings] = useState<Booking[]>([
+    {
+      id: 'b1',
+      puja: { name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा' },
+      scheduled_at: new Date(Date.now() + 86400000).toISOString(),
+      status: 'CONFIRMED',
+      amount: 2100,
+      address: 'Flat 402, Shanti Heights, Sector 62, Noida',
+      pandit: { name: 'Pandit Ramesh Shastri' }
+    },
+    {
+      id: 'b2',
+      puja: { name_en: 'Ganesh Puja', name_hi: 'गणेश पूजा' },
+      scheduled_at: new Date(Date.now() - 172800000).toISOString(),
+      status: 'COMPLETED',
+      amount: 1500,
+      address: 'Flat 402, Shanti Heights, Sector 62, Noida',
+      pandit: { name: 'Pandit Ramesh Shastri' }
+    }
+  ]);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchBookings = async () => {
@@ -90,7 +109,7 @@ export default function BookingsScreen({ navigation }: any) {
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => navigation.navigate('BookingDetail', { bookingId: item.id })}
+        onPress={() => navigation.navigate('BookingDetail', { bookingId: item.id, booking: item })}
         activeOpacity={0.9}
       >
         <View style={styles.cardHeader}>
@@ -143,7 +162,7 @@ export default function BookingsScreen({ navigation }: any) {
           ) : (
             <TouchableOpacity 
               style={styles.detailsButton} 
-              onPress={() => navigation.navigate('BookingDetail', { bookingId: item.id })}
+              onPress={() => navigation.navigate('BookingDetail', { bookingId: item.id, booking: item })}
               activeOpacity={0.8}
             >
               <Text style={styles.detailsButtonText}>Details</Text>

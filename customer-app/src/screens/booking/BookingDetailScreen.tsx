@@ -14,28 +14,34 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function BookingDetailScreen({ route, navigation }: any) {
-  const { bookingId } = route.params;
+  const { bookingId, booking: initialBooking } = route.params || {};
   const { t } = useTranslation();
-  const [booking, setBooking] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [booking, setBooking] = useState<any>(initialBooking || null);
+  const [loading, setLoading] = useState(!initialBooking);
 
   useEffect(() => {
+    if (initialBooking && (!booking || booking.id !== initialBooking.id)) {
+      setBooking(initialBooking);
+    }
+
     api.getBookingDetail(bookingId)
       .then((res) => {
         setBooking(res.data);
       })
       .catch(() => {
         // Fallback for development/testing
-        setBooking({
-          id: bookingId,
-          puja: { name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा', base_price: 2100 },
-          scheduled_at: new Date(Date.now() + 86400000).toISOString(),
-          status: 'CONFIRMED',
-          amount: 2600, // including samagri kit
-          kit_ordered: true,
-          address: 'Flat 402, Shanti Heights, Sector 62, Noida',
-          pandit: { name: 'Pandit Ramesh Shastri', phone: '+919876543210', rating_avg: 4.9 },
-        });
+        if (!booking) {
+          setBooking({
+            id: bookingId,
+            puja: { name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा', base_price: 2100 },
+            scheduled_at: new Date(Date.now() + 86400000).toISOString(),
+            status: 'CONFIRMED',
+            amount: 2600, // including samagri kit
+            kit_ordered: true,
+            address: 'Flat 402, Shanti Heights, Sector 62, Noida',
+            pandit: { name: 'Pandit Ramesh Shastri', phone: '+919876543210', rating_avg: 4.9 },
+          });
+        }
       })
       .finally(() => setLoading(false));
   }, [bookingId]);
@@ -65,7 +71,7 @@ export default function BookingDetailScreen({ route, navigation }: any) {
     );
   };
 
-  if (loading) {
+  if (loading && !booking) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#FF9933" />

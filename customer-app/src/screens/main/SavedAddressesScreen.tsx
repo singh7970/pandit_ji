@@ -11,8 +11,11 @@ interface SavedAddress {
 }
 
 export default function SavedAddressesScreen({ navigation }: any) {
-  const [addresses, setAddresses] = useState<SavedAddress[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [addresses, setAddresses] = useState<SavedAddress[]>([
+    { id: '1', title: 'Home', address_line: 'Flat 402, Shanti Heights, Sector 62, Noida' },
+    { id: '2', title: 'Office', address_line: '8th Floor, Cyber Towers, Sector 45, Gurgaon' }
+  ]);
+  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   
   // Form state

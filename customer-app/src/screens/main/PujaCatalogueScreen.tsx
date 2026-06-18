@@ -19,8 +19,8 @@ const OCCASIONS = ['All', 'Festivals', 'Housewarming', 'Health', 'Education', 'S
 
 export default function PujaCatalogueScreen({ navigation }: any) {
   const { t } = useTranslation();
-  const [pujas, setPujas] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [pujas, setPujas] = useState<any[]>(MOCK_PUJAS);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedOccasion, setSelectedOccasion] = useState('All');
 
@@ -30,7 +30,7 @@ export default function PujaCatalogueScreen({ navigation }: any) {
         setPujas(res.data.items || res.data);
       })
       .catch(() => {
-        setPujas(MOCK_PUJAS);
+        // Fallback already loaded
       })
       .finally(() => setLoading(false));
   }, []);

@@ -27,12 +27,12 @@ export default function BookingFlowScreen({ navigation }: any) {
     kitOrdered, setKitOrdered, selectedPandit, setSelectedPandit, currentStep, setCurrentStep, resetBooking
   } = useBookingStore();
 
-  const [pujas, setPujas] = useState<Puja[]>([]);
+  const [pujas, setPujas] = useState<Puja[]>(MOCK_POPULAR_PUJAS);
   const [loadingPujas, setLoadingPujas] = useState(false);
   const [localDate, setLocalDate] = useState('2026-06-12');
   const [localTime, setLocalTime] = useState('10:00 AM');
   const [localAddress, setLocalAddress] = useState('Flat 402, Shanti Heights, Sector 62, Noida');
-  const [availablePandits, setAvailablePandits] = useState<Pandit[]>([]);
+  const [availablePandits, setAvailablePandits] = useState<Pandit[]>(MOCK_PANDITS);
   const [loadingPandits, setLoadingPandits] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
@@ -226,39 +226,35 @@ export default function BookingFlowScreen({ navigation }: any) {
           <View style={styles.stepWrapper}>
             <Text style={styles.stepInstruction}>Select a Puja to begin booking:</Text>
             
-            {loadingPujas ? (
-              <ActivityIndicator size="large" color="#FF9933" style={{ marginTop: 40 }} />
-            ) : (
-              <View style={styles.pujaSelectionList}>
-                {pujas.map((item) => {
-                  const isSelected = selectedPuja?.id === item.id;
-                  return (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={[styles.pujaSelectionCard, isSelected && styles.pujaSelectionCardSelected]}
-                      onPress={() => setSelectedPuja(item)}
-                      activeOpacity={0.9}
-                    >
-                      <View style={styles.pujaSelectionIconContainer}>
-                        <Text style={styles.pujaSelectionIcon}>
-                          {item.deity === 'Ganesh' ? '🐘' : item.deity === 'Vishnu' ? '🔱' : item.deity === 'Shiva' ? '🕉️' : '🪔'}
-                        </Text>
-                      </View>
-                      <View style={styles.pujaSelectionInfo}>
-                        <Text style={styles.pujaSelectionName}>{item.name_en}</Text>
-                        {item.name_hi && <Text style={styles.pujaSelectionNameHi}>{item.name_hi}</Text>}
-                        <Text style={styles.pujaSelectionDetails}>
-                          ⏱ {item.duration_hrs} hrs · {item.deity && `🕉️ ${item.deity}`}
-                        </Text>
-                      </View>
-                      <View style={styles.pujaSelectionPriceContainer}>
-                        <Text style={styles.pujaSelectionPrice}>₹{item.base_price}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
+            <View style={styles.pujaSelectionList}>
+              {pujas.map((item) => {
+                const isSelected = selectedPuja?.id === item.id;
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[styles.pujaSelectionCard, isSelected && styles.pujaSelectionCardSelected]}
+                    onPress={() => setSelectedPuja(item)}
+                    activeOpacity={0.9}
+                  >
+                    <View style={styles.pujaSelectionIconContainer}>
+                      <Text style={styles.pujaSelectionIcon}>
+                        {item.deity === 'Ganesh' ? '🐘' : item.deity === 'Vishnu' ? '🔱' : item.deity === 'Shiva' ? '🕉️' : '🪔'}
+                      </Text>
+                    </View>
+                    <View style={styles.pujaSelectionInfo}>
+                      <Text style={styles.pujaSelectionName}>{item.name_en}</Text>
+                      {item.name_hi && <Text style={styles.pujaSelectionNameHi}>{item.name_hi}</Text>}
+                      <Text style={styles.pujaSelectionDetails}>
+                        ⏱ {item.duration_hrs} hrs · {item.deity && `🕉️ ${item.deity}`}
+                      </Text>
+                    </View>
+                    <View style={styles.pujaSelectionPriceContainer}>
+                      <Text style={styles.pujaSelectionPrice}>₹{item.base_price}</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         )}
 
@@ -351,39 +347,35 @@ export default function BookingFlowScreen({ navigation }: any) {
           <View style={styles.stepWrapper}>
             <Text style={styles.stepInstruction}>Choose a verified Pandit for your puja:</Text>
             
-            {loadingPandits ? (
-              <ActivityIndicator size="large" color="#FF9933" style={{ marginTop: 40 }} />
-            ) : (
-              <View style={styles.panditList}>
-                {availablePandits.map((pandit) => {
-                  const isSelected = selectedPandit?.id === pandit.id;
-                  return (
-                    <TouchableOpacity
-                      key={pandit.id}
-                      style={[styles.panditCard, isSelected && styles.panditCardSelected]}
-                      onPress={() => setSelectedPandit(pandit)}
-                      activeOpacity={0.9}
-                    >
-                      <View style={styles.panditAvatar}>
-                        <User size={24} color="#FF9933" />
+            <View style={styles.panditList}>
+              {availablePandits.map((pandit) => {
+                const isSelected = selectedPandit?.id === pandit.id;
+                return (
+                  <TouchableOpacity
+                    key={pandit.id}
+                    style={[styles.panditCard, isSelected && styles.panditCardSelected]}
+                    onPress={() => setSelectedPandit(pandit)}
+                    activeOpacity={0.9}
+                  >
+                    <View style={styles.panditAvatar}>
+                      <User size={24} color="#FF9933" />
+                    </View>
+                    <View style={styles.panditInfo}>
+                      <Text style={styles.panditName}>{pandit.name}</Text>
+                      <Text style={styles.panditSub}>
+                        {pandit.experience_years} years exp · {pandit.sampraday}
+                      </Text>
+                      <View style={styles.ratingRow}>
+                        <Text style={styles.ratingText}>★ {pandit.rating_avg.toFixed(1)}</Text>
                       </View>
-                      <View style={styles.panditInfo}>
-                        <Text style={styles.panditName}>{pandit.name}</Text>
-                        <Text style={styles.panditSub}>
-                          {pandit.experience_years} years exp · {pandit.sampraday}
-                        </Text>
-                        <View style={styles.ratingRow}>
-                          <Text style={styles.ratingText}>★ {pandit.rating_avg.toFixed(1)}</Text>
-                        </View>
-                      </View>
-                      <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-                        {isSelected && <View style={styles.checkboxDot} />}
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
+                    </View>
+                    <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+                      {isSelected && <View style={styles.checkboxDot} />}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         )}
 
