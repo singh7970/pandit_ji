@@ -160,11 +160,11 @@ def analytics(
     total_pandits = db.query(PanditProfile).filter(PanditProfile.status == "ACTIVE").count()
     pending_pandits = db.query(PanditProfile).filter(PanditProfile.status == "PENDING").count()
 
-    gmv_result = db.query(func.sum(Booking.amount)).filter(Booking.status == "COMPLETED").scalar()
+    gmv_result = db.query(func.sum(Booking.amount)).filter(Booking.status != "CANCELLED").scalar()
     gmv = float(gmv_result or 0)
 
     # Revenue (platform fee)
-    revenue_result = db.query(func.sum(Booking.platform_fee)).filter(Booking.status == "COMPLETED").scalar()
+    revenue_result = db.query(func.sum(Booking.platform_fee)).filter(Booking.status != "CANCELLED").scalar()
     revenue = float(revenue_result or 0)
 
     # Dynamic average rating from reviews
@@ -178,7 +178,7 @@ def analytics(
         func.date_trunc('month', Booking.created_at).label('month_date'),
         func.sum(Booking.amount).label('gmv')
     ).filter(
-        Booking.status == "COMPLETED"
+        Booking.status != "CANCELLED"
     ).group_by(
         'month_date'
     ).order_by(
@@ -206,7 +206,7 @@ def analytics(
     ).join(
         Booking, Booking.puja_id == Puja.id
     ).filter(
-        Booking.status == "COMPLETED"
+        Booking.status != "CANCELLED"
     ).group_by(
         Puja.name_en
     ).all()
@@ -214,7 +214,7 @@ def analytics(
     puja_mix = [{"name": row.name, "value": int(row.value)} for row in puja_mix_query]
     if not puja_mix:
         puja_mix = [
-            {"name": "No Completed Pujas", "value": 1}
+            {"name": "No Active Bookings", "value": 1}
         ]
 
     return {
