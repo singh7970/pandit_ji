@@ -29,6 +29,15 @@ export default function BookingFlowScreen({ navigation }: any) {
 
   const [pujas, setPujas] = useState<Puja[]>(MOCK_POPULAR_PUJAS);
   const [loadingPujas, setLoadingPujas] = useState(false);
+
+  // Custom Date and Watch Picker states
+  const [selectedDateObj, setSelectedDateObj] = useState(new Date(2026, 5, 12)); // default to June 12, 2026
+  const [currentMonth, setCurrentMonth] = useState(5); // June
+  const [currentYear, setCurrentYear] = useState(2026);
+  const [selectedHour, setSelectedHour] = useState('10');
+  const [selectedMinute, setSelectedMinute] = useState('00');
+  const [selectedPeriod, setSelectedPeriod] = useState('AM');
+
   const [localDate, setLocalDate] = useState('2026-06-12');
   const [localTime, setLocalTime] = useState('10:00 AM');
   const [localAddress, setLocalAddress] = useState('Flat 402, Shanti Heights, Sector 62, Noida');
@@ -36,6 +45,51 @@ export default function BookingFlowScreen({ navigation }: any) {
   const [loadingPandits, setLoadingPandits] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLocalTime(`${selectedHour}:${selectedMinute} ${selectedPeriod}`);
+  }, [selectedHour, selectedMinute, selectedPeriod]);
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const getDaysInMonth = (month: number, year: number) => {
+    const date = new Date(year, month, 1);
+    const days = [];
+    let startDay = date.getDay();
+    if (startDay === 0) startDay = 7;
+    startDay = startDay - 1; // 0-indexed Mon-Sun
+    for (let i = 0; i < startDay; i++) {
+      days.push(null);
+    }
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    for (let d = 1; d <= totalDays; d++) {
+      days.push(new Date(year, month, d));
+    }
+    return days;
+  };
+
+  const handlePrevMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(currentYear - 1);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(currentYear + 1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
+  };
+
+  const days = getDaysInMonth(currentMonth, currentYear);
 
   // Success screen scale animation
   const successScale = useRef(new Animated.Value(0.3)).current;
@@ -83,8 +137,20 @@ export default function BookingFlowScreen({ navigation }: any) {
       }
       setCurrentStep(2);
     } else if (currentStep === 2) {
-      // Parse local date/time to date object
-      const combined = new Date(`${localDate}T${localTime.includes('AM') ? '10:00:00' : '18:00:00'}`);
+      // Parse local date/time to date object precisely
+      let hourNum = parseInt(selectedHour);
+      if (selectedPeriod === 'PM' && hourNum < 12) {
+        hourNum += 12;
+      } else if (selectedPeriod === 'AM' && hourNum === 12) {
+        hourNum = 0;
+      }
+      const combined = new Date(
+        selectedDateObj.getFullYear(),
+        selectedDateObj.getMonth(),
+        selectedDateObj.getDate(),
+        hourNum,
+        parseInt(selectedMinute)
+      );
       setScheduledAt(combined);
       setCurrentStep(3);
     } else if (currentStep === 3) {
@@ -263,32 +329,104 @@ export default function BookingFlowScreen({ navigation }: any) {
           <View style={styles.stepWrapper}>
             <Text style={styles.stepInstruction}>Select the date and time for the puja:</Text>
             
-            <View style={styles.inputCard}>
-              <View style={styles.inputRow}>
-                <Calendar size={20} color="#FF9933" style={{ marginRight: 12 }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.inputLabel}>Select Date</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={localDate}
-                    onChangeText={setLocalDate}
-                    placeholder="YYYY-MM-DD"
-                  />
-                </View>
+            {/* Inline Calendar Grid */}
+            <View style={styles.calendarCard}>
+              <View style={styles.calendarHeader}>
+                <TouchableOpacity onPress={handlePrevMonth} style={styles.monthNavBtn}>
+                  <Text style={styles.monthNavText}>◀</Text>
+                </TouchableOpacity>
+                <Text style={styles.calendarMonthTitle}>
+                  {monthNames[currentMonth]} {currentYear}
+                </Text>
+                <TouchableOpacity onPress={handleNextMonth} style={styles.monthNavBtn}>
+                  <Text style={styles.monthNavText}>▶</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.weekdaysRow}>
+                {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day) => (
+                  <Text key={day} style={styles.weekdayText}>{day}</Text>
+                ))}
+              </View>
+
+              <View style={styles.daysGrid}>
+                {days.map((dateObj, index) => {
+                  if (!dateObj) {
+                    return <View key={`empty-${index}`} style={styles.dayCellEmpty} />;
+                  }
+                  const dayNum = dateObj.getDate();
+                  const isSelected = selectedDateObj &&
+                    selectedDateObj.getDate() === dayNum &&
+                    selectedDateObj.getMonth() === currentMonth &&
+                    selectedDateObj.getFullYear() === currentYear;
+
+                  return (
+                    <TouchableOpacity
+                      key={dateObj.toISOString()}
+                      style={[styles.dayCell, isSelected && styles.dayCellSelected]}
+                      onPress={() => {
+                        setSelectedDateObj(dateObj);
+                        const yyyy = dateObj.getFullYear();
+                        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        const dd = String(dateObj.getDate()).padStart(2, '0');
+                        setLocalDate(`${yyyy}-${mm}-${dd}`);
+                      }}
+                    >
+                      <Text style={[styles.dayText, isSelected && styles.dayTextSelected]}>
+                        {dayNum}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </View>
 
-            <View style={styles.inputCard}>
-              <View style={styles.inputRow}>
-                <Clock size={20} color="#FF9933" style={{ marginRight: 12 }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.inputLabel}>Select Time Slot</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={localTime}
-                    onChangeText={setLocalTime}
-                    placeholder="HH:MM AM/PM"
-                  />
+            {/* Scrollable Watch Time Picker */}
+            <View style={styles.watchCard}>
+              <Text style={styles.watchSectionTitle}>Scroll & Select Time</Text>
+              
+              <View style={styles.timeScrollContainer}>
+                <Text style={styles.timeScrollLabel}>Select Hour</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.timeScroll}>
+                  {['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map((h) => (
+                    <TouchableOpacity
+                      key={h}
+                      style={[styles.timeCircle, selectedHour === h && styles.timeCircleSelected]}
+                      onPress={() => setSelectedHour(h)}
+                    >
+                      <Text style={[styles.timeCircleText, selectedHour === h && styles.timeCircleTextSelected]}>{h}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.timeScrollContainer}>
+                <Text style={styles.timeScrollLabel}>Select Minute</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.timeScroll}>
+                  {['00', '15', '30', '45'].map((m) => (
+                    <TouchableOpacity
+                      key={m}
+                      style={[styles.timeCircle, selectedMinute === m && styles.timeCircleSelected]}
+                      onPress={() => setSelectedMinute(m)}
+                    >
+                      <Text style={[styles.timeCircleText, selectedMinute === m && styles.timeCircleTextSelected]}>{m}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.timeScrollContainer}>
+                <Text style={styles.timeScrollLabel}>AM / PM</Text>
+                <View style={styles.periodContainer}>
+                  {['AM', 'PM'].map((p) => (
+                    <TouchableOpacity
+                      key={p}
+                      style={[styles.periodButton, selectedPeriod === p && styles.periodButtonSelected]}
+                      onPress={() => setSelectedPeriod(p)}
+                    >
+                      <Text style={[styles.periodButtonText, selectedPeriod === p && styles.periodButtonTextSelected]}>{p}</Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
               </View>
             </View>
@@ -923,5 +1061,164 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     marginRight: 6,
+  },
+  calendarCard: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#F0E6D8',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 20,
+    shadowColor: '#1A1A1A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  monthNavBtn: {
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#FFF8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  monthNavText: {
+    color: '#FF9933',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  calendarMonthTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#1A1A1A',
+  },
+  weekdaysRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 8,
+  },
+  weekdayText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A0988E',
+    width: 38,
+    textAlign: 'center',
+  },
+  daysGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    rowGap: 8,
+  },
+  dayCell: {
+    width: 38,
+    height: 38,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 19,
+  },
+  dayCellEmpty: {
+    width: 38,
+    height: 38,
+  },
+  dayCellSelected: {
+    backgroundColor: '#FF9933',
+  },
+  dayText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1A1A1A',
+  },
+  dayTextSelected: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  watchCard: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#F0E6D8',
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 16,
+  },
+  watchSectionTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#A0988E',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 14,
+  },
+  timeScrollContainer: {
+    marginBottom: 16,
+  },
+  timeScrollLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 8,
+  },
+  timeScroll: {
+    gap: 10,
+    paddingVertical: 4,
+  },
+  timeCircle: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#FFFDF7',
+    borderWidth: 1.5,
+    borderColor: '#EFEBE4',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timeCircleSelected: {
+    backgroundColor: '#FF9933',
+    borderColor: '#FF9933',
+  },
+  timeCircleText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  timeCircleTextSelected: {
+    color: '#FFFFFF',
+  },
+  periodContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F3EDE4',
+    borderRadius: 12,
+    padding: 4,
+    gap: 4,
+    width: 140,
+  },
+  periodButton: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  periodButtonSelected: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#1A1A1A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  periodButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#666666',
+  },
+  periodButtonTextSelected: {
+    color: '#FF9933',
   },
 });
