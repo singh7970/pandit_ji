@@ -2,10 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, TextInput, Switch, ActivityIndicator, Dimensions, Animated } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Calendar, Clock, MapPin, Sparkles, CheckCircle2, ChevronRight, User } from 'lucide-react-native';
-import { useBookingStore, Pandit } from '../../store/bookingStore';
+import { useBookingStore, Pandit, Puja } from '../../store/bookingStore';
 import { api } from '../../services/api';
 
 const { width } = Dimensions.get('window');
+
+const MOCK_POPULAR_PUJAS: Puja[] = [
+  { id: '1', name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा', base_price: 2100, duration_hrs: 2.5, deity: 'Vishnu' },
+  { id: '2', name_en: 'Griha Pravesh Puja', name_hi: 'गृह प्रवेश पूजा', base_price: 5100, duration_hrs: 4, deity: 'Ganesh' },
+  { id: '3', name_en: 'Ganesh Puja', name_hi: 'गणेश पूजा', base_price: 1500, duration_hrs: 1.5, deity: 'Ganesh' },
+  { id: '4', name_en: 'Maha Mrityunjaya Jaap', name_hi: 'महा मृत्युंजय जाप', base_price: 11000, duration_hrs: 6, deity: 'Shiva' },
+];
 
 const MOCK_PANDITS: Pandit[] = [
   { id: 'p1', name: 'Pandit Ramesh Shastri', rating_avg: 4.9, experience_years: 15, languages: ['Hindi', 'Sanskrit'], sampraday: 'Vedic', photo_url: '' },
@@ -16,10 +23,12 @@ const MOCK_PANDITS: Pandit[] = [
 export default function BookingFlowScreen({ navigation }: any) {
   const { t } = useTranslation();
   const { 
-    selectedPuja, scheduledAt, setScheduledAt, address, lat, lng, setAddress,
+    selectedPuja, setSelectedPuja, scheduledAt, setScheduledAt, address, lat, lng, setAddress,
     kitOrdered, setKitOrdered, selectedPandit, setSelectedPandit, currentStep, setCurrentStep, resetBooking
   } = useBookingStore();
 
+  const [pujas, setPujas] = useState<Puja[]>([]);
+  const [loadingPujas, setLoadingPujas] = useState(false);
   const [localDate, setLocalDate] = useState('2026-06-12');
   const [localTime, setLocalTime] = useState('10:00 AM');
   const [localAddress, setLocalAddress] = useState('Flat 402, Shanti Heights, Sector 62, Noida');
@@ -34,6 +43,7 @@ export default function BookingFlowScreen({ navigation }: any) {
 
   // Step names
   const stepTitles = [
+    'Choose Puja',
     'Date & Time',
     'Puja Address',
     'Samagri Kit',
@@ -42,22 +52,40 @@ export default function BookingFlowScreen({ navigation }: any) {
     'Confirmation'
   ];
 
+  useEffect(() => {
+    setLoadingPujas(true);
+    api.getPujas()
+      .then((res) => {
+        setPujas(res.data.items || res.data);
+      })
+      .catch(() => {
+        setPujas(MOCK_POPULAR_PUJAS);
+      })
+      .finally(() => setLoadingPujas(false));
+  }, []);
+
   const handleNext = () => {
     if (currentStep === 1) {
+      if (!selectedPuja) {
+        alert("Please select a Puja to continue.");
+        return;
+      }
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
       // Parse local date/time to date object
       const combined = new Date(`${localDate}T${localTime.includes('AM') ? '10:00:00' : '18:00:00'}`);
       setScheduledAt(combined);
-      setCurrentStep(2);
-    } else if (currentStep === 2) {
-      setAddress(localAddress, 28.6289, 77.3798); // Noida coordinates
       setCurrentStep(3);
     } else if (currentStep === 3) {
-      // Fetch available pandits
-      fetchPandits();
+      setAddress(localAddress, 28.6289, 77.3798); // Noida coordinates
       setCurrentStep(4);
     } else if (currentStep === 4) {
+      // Fetch available pandits
+      fetchPandits();
       setCurrentStep(5);
     } else if (currentStep === 5) {
+      setCurrentStep(6);
+    } else if (currentStep === 6) {
       handlePayment();
     }
   };
@@ -65,7 +93,7 @@ export default function BookingFlowScreen({ navigation }: any) {
   const handleBack = () => {
     if (currentStep === 1) {
       navigation.goBack();
-    } else if (currentStep < 6) {
+    } else if (currentStep < 7) {
       setCurrentStep(currentStep - 1);
     }
   };
@@ -110,7 +138,7 @@ export default function BookingFlowScreen({ navigation }: any) {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       setSubmitting(false);
-      setCurrentStep(6);
+      setCurrentStep(7);
 
       // Trigger success animation
       Animated.parallel([
@@ -131,7 +159,7 @@ export default function BookingFlowScreen({ navigation }: any) {
       setBookingId('BK-' + Math.floor(Math.random() * 900000 + 100000));
       await new Promise((resolve) => setTimeout(resolve, 1200));
       setSubmitting(false);
-      setCurrentStep(6);
+      setCurrentStep(7);
 
       Animated.parallel([
         Animated.spring(successScale, {
@@ -157,13 +185,13 @@ export default function BookingFlowScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header (Only if not success screen) */}
-      {currentStep < 6 && (
+      {currentStep < 7 && (
         <View style={styles.header}>
           <TouchableOpacity style={styles.iconButton} onPress={handleBack} activeOpacity={0.7}>
             <ArrowLeft size={22} color="#1A1A1A" />
           </TouchableOpacity>
           <View style={styles.headerTitleContainer}>
-            <Text style={styles.headerTitle}>{selectedPuja?.name_en}</Text>
+            <Text style={styles.headerTitle}>{selectedPuja?.name_en || 'Book a Pandit'}</Text>
             <Text style={styles.headerSub}>{stepTitles[currentStep - 1]}</Text>
           </View>
           <View style={{ width: 44 }} />
@@ -171,18 +199,60 @@ export default function BookingFlowScreen({ navigation }: any) {
       )}
 
       {/* Progress Bar */}
-      {currentStep < 6 && (
+      {currentStep < 7 && (
         <View style={styles.progressContainer}>
           <View style={styles.progressBarBackground}>
-            <View style={[styles.progressBarFill, { width: `${(currentStep / 5) * 100}%` }]} />
+            <View style={[styles.progressBarFill, { width: `${(currentStep / 6) * 100}%` }]} />
           </View>
-          <Text style={styles.progressText}>Step {currentStep} of 5</Text>
+          <Text style={styles.progressText}>Step {currentStep} of 6</Text>
         </View>
       )}
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Step 1: Date & Time Picker */}
+        
+        {/* Step 1: Choose Puja */}
         {currentStep === 1 && (
+          <View style={styles.stepWrapper}>
+            <Text style={styles.stepInstruction}>Select a Puja to begin booking:</Text>
+            
+            {loadingPujas ? (
+              <ActivityIndicator size="large" color="#FF9933" style={{ marginTop: 40 }} />
+            ) : (
+              <View style={styles.pujaSelectionList}>
+                {pujas.map((item) => {
+                  const isSelected = selectedPuja?.id === item.id;
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[styles.pujaSelectionCard, isSelected && styles.pujaSelectionCardSelected]}
+                      onPress={() => setSelectedPuja(item)}
+                      activeOpacity={0.9}
+                    >
+                      <View style={styles.pujaSelectionIconContainer}>
+                        <Text style={styles.pujaSelectionIcon}>
+                          {item.deity === 'Ganesh' ? '🐘' : item.deity === 'Vishnu' ? '🔱' : item.deity === 'Shiva' ? '🕉️' : '🪔'}
+                        </Text>
+                      </View>
+                      <View style={styles.pujaSelectionInfo}>
+                        <Text style={styles.pujaSelectionName}>{item.name_en}</Text>
+                        {item.name_hi && <Text style={styles.pujaSelectionNameHi}>{item.name_hi}</Text>}
+                        <Text style={styles.pujaSelectionDetails}>
+                          ⏱ {item.duration_hrs} hrs · {item.deity && `🕉️ ${item.deity}`}
+                        </Text>
+                      </View>
+                      <View style={styles.pujaSelectionPriceContainer}>
+                        <Text style={styles.pujaSelectionPrice}>₹{item.base_price}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Step 2: Date & Time Picker */}
+        {currentStep === 2 && (
           <View style={styles.stepWrapper}>
             <Text style={styles.stepInstruction}>Select the date and time for the puja:</Text>
             
@@ -223,8 +293,8 @@ export default function BookingFlowScreen({ navigation }: any) {
           </View>
         )}
 
-        {/* Step 2: Address Entry */}
-        {currentStep === 2 && (
+        {/* Step 3: Address Entry */}
+        {currentStep === 3 && (
           <View style={styles.stepWrapper}>
             <Text style={styles.stepInstruction}>Where should the Pandit perform the puja?</Text>
             <View style={styles.inputCard}>
@@ -246,8 +316,8 @@ export default function BookingFlowScreen({ navigation }: any) {
           </View>
         )}
 
-        {/* Step 3: Samagri Kit Toggle */}
-        {currentStep === 3 && (
+        {/* Step 4: Samagri Kit Toggle */}
+        {currentStep === 4 && (
           <View style={styles.stepWrapper}>
             <Text style={styles.stepInstruction}>Do you need us to provide the Puja Samagri?</Text>
             <View style={styles.samagriToggleCard}>
@@ -265,8 +335,8 @@ export default function BookingFlowScreen({ navigation }: any) {
           </View>
         )}
 
-        {/* Step 4: Pandit Selection */}
-        {currentStep === 4 && (
+        {/* Step 5: Pandit Selection */}
+        {currentStep === 5 && (
           <View style={styles.stepWrapper}>
             <Text style={styles.stepInstruction}>Choose a verified Pandit for your puja:</Text>
             
@@ -306,8 +376,8 @@ export default function BookingFlowScreen({ navigation }: any) {
           </View>
         )}
 
-        {/* Step 5: Order Summary */}
-        {currentStep === 5 && (
+        {/* Step 6: Order Summary */}
+        {currentStep === 6 && (
           <View style={styles.stepWrapper}>
             <Text style={styles.stepInstruction}>Verify details before proceeding to payment:</Text>
             
@@ -351,8 +421,8 @@ export default function BookingFlowScreen({ navigation }: any) {
           </View>
         )}
 
-        {/* Step 6: Confirmation Screen */}
-        {currentStep === 6 && (
+        {/* Step 7: Confirmation Screen */}
+        {currentStep === 7 && (
           <Animated.View style={[styles.successContainer, { opacity: successOpacity, transform: [{ scale: successScale }] }]}>
             <CheckCircle2 size={80} color="#22C55E" style={{ marginBottom: 20 }} />
             <Text style={styles.successTitle}>{t('successTitle')}</Text>
@@ -388,7 +458,7 @@ export default function BookingFlowScreen({ navigation }: any) {
       </ScrollView>
 
       {/* Navigation Buttons (Only if not success screen) */}
-      {currentStep < 6 && (
+      {currentStep < 7 && (
         <View style={styles.footer}>
           <TouchableOpacity 
             style={[styles.nextButton, submitting && styles.nextButtonDisabled]} 
@@ -401,9 +471,9 @@ export default function BookingFlowScreen({ navigation }: any) {
             ) : (
               <>
                 <Text style={styles.nextButtonText}>
-                  {currentStep === 5 ? 'Pay Now' : 'Next'}
+                  {currentStep === 6 ? 'Pay Now' : 'Next'}
                 </Text>
-                {currentStep < 5 && <ChevronRight size={16} color="#FFFFFF" />}
+                {currentStep < 6 && <ChevronRight size={16} color="#FFFFFF" />}
               </>
             )}
           </TouchableOpacity>
@@ -471,7 +541,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 100,
   },
   stepWrapper: {
     paddingHorizontal: 24,
@@ -482,6 +552,64 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1A1A1A',
     marginBottom: 20,
+  },
+  pujaSelectionList: {
+    gap: 12,
+  },
+  pujaSelectionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#F0E6D8',
+    borderRadius: 18,
+    padding: 16,
+  },
+  pujaSelectionCardSelected: {
+    borderColor: '#FF9933',
+    backgroundColor: '#FFF8F0',
+  },
+  pujaSelectionIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#FFFDF7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+    borderWidth: 1,
+    borderColor: '#F5ECE0',
+  },
+  pujaSelectionIcon: {
+    fontSize: 20,
+  },
+  pujaSelectionInfo: {
+    flex: 1,
+  },
+  pujaSelectionName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1A1A1A',
+  },
+  pujaSelectionNameHi: {
+    fontSize: 11,
+    color: '#888888',
+    marginTop: 1,
+  },
+  pujaSelectionDetails: {
+    fontSize: 11,
+    color: '#A0988E',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  pujaSelectionPriceContainer: {
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  pujaSelectionPrice: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FF9933',
   },
   inputCard: {
     backgroundColor: '#FFFFFF',

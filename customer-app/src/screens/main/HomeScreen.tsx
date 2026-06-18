@@ -183,11 +183,9 @@ export default function HomeScreen({ navigation }: any) {
       <TouchableOpacity
         style={styles.fab}
         onPress={() => {
-          if (pujas.length > 0) {
-            handlePujaSelect(pujas[0]);
-          } else {
-            navigation.navigate('PujaCatalogue');
-          }
+          setSelectedPuja(null);
+          setCurrentStep(1);
+          navigation.navigate('BookingFlow');
         }}
         activeOpacity={0.9}
       >
