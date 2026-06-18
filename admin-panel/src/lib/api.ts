@@ -18,6 +18,8 @@ if (typeof window !== "undefined") {
 
 export const endpoints = {
   analytics: () => api.get("/admin/analytics"),
+  customers: () => api.get("/admin/customers"),
+  paymentsList: () => api.get("/admin/payments"),
   panditQueue: () => api.get("/admin/pandits/queue"),
   approvePandit: (id: string, tier: string) =>
     api.put(`/admin/pandits/${id}/approve?tier=${tier}`),

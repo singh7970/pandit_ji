@@ -3,13 +3,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, CalendarCheck, IndianRupee,
-  BookOpen, Bell, Settings, LogOut, Flame,
+  BookOpen, Bell, Settings, LogOut, Flame, User,
 } from "lucide-react";
 import clsx from "clsx";
 
 const NAV = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/pandits", icon: Users, label: "Pandits" },
+  { href: "/customers", icon: User, label: "Customers" },
   { href: "/bookings", icon: CalendarCheck, label: "Bookings" },
   { href: "/payments", icon: IndianRupee, label: "Payments" },
   { href: "/pujas", icon: BookOpen, label: "Puja Catalogue" },

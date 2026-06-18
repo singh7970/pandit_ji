@@ -11,14 +11,14 @@ export default function ProfileScreen({ navigation }: any) {
 
   const handleLogout = () => {
     if (Platform.OS === 'web') {
-      const confirm = window.confirm('Are you sure you want to logout from PanditJi?');
+      const confirm = window.confirm('Are you sure you want to logout from Vidhi Vidhan?');
       if (confirm) {
         logout();
       }
     } else {
       Alert.alert(
         'Logout',
-        'Are you sure you want to logout from PanditJi?',
+        'Are you sure you want to logout from Vidhi Vidhan?',
         [
           { text: 'Cancel', style: 'cancel' },
           { 
@@ -42,7 +42,7 @@ export default function ProfileScreen({ navigation }: any) {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: 'Download PanditJi - Book Verified Pandits for Every Puja, on-demand! Join us now.',
+        message: 'Download Vidhi Vidhan - Book Verified Pandits for Every Puja, on-demand! Join us now.',
       });
     } catch (error) {
       // Ignore
@@ -167,7 +167,7 @@ export default function ProfileScreen({ navigation }: any) {
           <Text style={styles.logoutText}>{t('logout')}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.versionText}>PanditJi Customer App · v1.0.0 (Beta)</Text>
+        <Text style={styles.versionText}>Vidhi Vidhan Customer App · v1.0.0 (Beta)</Text>
       </ScrollView>
     </SafeAreaView>
   );

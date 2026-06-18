@@ -46,8 +46,8 @@ export default function SplashScreen({ navigation }: any) {
         <View style={styles.symbolCircle}>
           <Text style={styles.symbolText}>🕉️</Text>
         </View>
-        <Text style={styles.logoTitle}>पंडितजी</Text>
-        <Text style={styles.logoSub}>PanditJi</Text>
+        <Text style={styles.logoTitle}>विधि विधान</Text>
+        <Text style={styles.logoSub}>Vidhi Vidhan</Text>
         <View style={styles.divider} />
         <Text style={styles.tagline}>Book Verified Pandits for Every Puja</Text>
       </Animated.View>

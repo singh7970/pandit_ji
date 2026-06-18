@@ -24,7 +24,7 @@ export default function LanguageSelectScreen({ navigation }: any) {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>चुनें भाषा / Select Language</Text>
-        <Text style={styles.subtitle}>Choose your preferred language for using PanditJi</Text>
+        <Text style={styles.subtitle}>Choose your preferred language for using Vidhi Vidhan</Text>
         
         <View style={styles.cardsContainer}>
           <TouchableOpacity

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, X } from "lucide-react";
 import { PageHeader, Badge, LoadingSpinner, EmptyState } from "@/components/ui";
 import { endpoints } from "@/lib/api";
 
@@ -59,6 +59,7 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   const load = (status?: string) => {
     setLoading(true);
@@ -132,12 +133,100 @@ export default function BookingsPage() {
                     <Badge color={STATUS_COLOR[b.status] || "gray"}>{b.status}</Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <button className="text-xs text-saffron-600 hover:underline">View</button>
+                    <button
+                      onClick={() => setSelectedBooking(b)}
+                      className="text-xs text-saffron-600 hover:underline font-medium"
+                    >
+                      View
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Modal */}
+      {selectedBooking && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-xl relative animate-scale-up border border-gray-100">
+            <button
+              onClick={() => setSelectedBooking(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="font-heading font-bold text-lg text-gray-900 mb-4">
+              Booking Details
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center pb-3 border-b border-gray-50">
+                <span className="text-xs font-semibold text-gray-400 uppercase">Booking ID</span>
+                <span className="font-mono text-sm text-gray-700">{selectedBooking.id}</span>
+              </div>
+
+              <div className="flex justify-between items-center pb-3 border-b border-gray-50">
+                <span className="text-xs font-semibold text-gray-400 uppercase">Status</span>
+                <Badge color={STATUS_COLOR[selectedBooking.status] || "gray"}>{selectedBooking.status}</Badge>
+              </div>
+
+              <div className="flex justify-between items-center pb-3 border-b border-gray-50">
+                <span className="text-xs font-semibold text-gray-400 uppercase">Amount Paid</span>
+                <span className="font-semibold text-gray-900">₹{selectedBooking.amount?.toLocaleString("en-IN") || "—"}</span>
+              </div>
+
+              <div className="flex justify-between items-center pb-3 border-b border-gray-50">
+                <span className="text-xs font-semibold text-gray-400 uppercase">Scheduled For</span>
+                <span className="text-sm text-gray-700">
+                  {selectedBooking.scheduled_at ? new Date(selectedBooking.scheduled_at).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  }) : "—"}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center pb-3 border-b border-gray-50">
+                <span className="text-xs font-semibold text-gray-400 uppercase">Location</span>
+                <span className="text-sm text-gray-700">{selectedBooking.city || "—"}</span>
+              </div>
+
+              <div className="pb-3 border-b border-gray-50 space-y-1">
+                <span className="text-xs font-semibold text-gray-400 uppercase block">Full Address</span>
+                <span className="text-sm text-gray-600 block bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                  {selectedBooking.address || "—"}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                  <span className="font-semibold text-gray-400 uppercase block mb-1">Customer ID</span>
+                  <span className="font-mono text-gray-600 bg-gray-50 px-2 py-1.5 rounded-lg border border-gray-100 block truncate">
+                    {selectedBooking.customer_id || "—"}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-semibold text-gray-400 uppercase block mb-1">Pandit ID</span>
+                  <span className="font-mono text-gray-600 bg-gray-50 px-2 py-1.5 rounded-lg border border-gray-100 block truncate">
+                    {selectedBooking.pandit_id || "Unassigned"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setSelectedBooking(null)}
+                className="px-5 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

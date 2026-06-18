@@ -252,3 +252,21 @@ def broadcast_notification(
         "title": title,
         "body": body,
     }
+
+
+@router.get("/customers", summary="Get all customers (admin)")
+def all_customers(
+    db: Session = Depends(get_db),
+    _: User = Depends(_require_admin),
+):
+    customers = db.query(User).filter(User.role == "CUSTOMER").order_by(User.created_at.desc()).all()
+    return customers
+
+
+@router.get("/payments", summary="Get all payments (admin)")
+def all_payments(
+    db: Session = Depends(get_db),
+    _: User = Depends(_require_admin),
+):
+    payments = db.query(Payment).order_by(Payment.created_at.desc()).all()
+    return payments

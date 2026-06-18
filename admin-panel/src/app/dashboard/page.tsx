@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { IndianRupee, Users, CalendarCheck, Star, TrendingUp, Clock } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { StatCard, PageHeader, LoadingSpinner } from "@/components/ui";
@@ -109,17 +110,21 @@ export default function DashboardPage() {
       {/* Quick Stats Row */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Customers", value: data!.total_customers, icon: "👤" },
-          { label: "Completed Pujas", value: data!.completed_bookings, icon: "🕉️" },
-          { label: "Avg Rating", value: `${data!.avg_rating} ★`, icon: "⭐" },
+          { label: "Customers", value: data!.total_customers, icon: "👤", href: "/customers" },
+          { label: "Completed Pujas", value: data!.completed_bookings, icon: "🕉️", href: "/bookings" },
+          { label: "Avg Rating", value: `${data!.avg_rating} ★`, icon: "⭐", href: "/pandits" },
         ].map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-50 flex items-center gap-4">
+          <Link
+            key={s.label}
+            href={s.href}
+            className="bg-white rounded-2xl p-5 shadow-sm border border-gray-50 flex items-center gap-4 hover:shadow-md hover:bg-orange-50/20 transition-all cursor-pointer"
+          >
             <span className="text-3xl">{s.icon}</span>
             <div>
               <p className="text-2xl font-heading font-bold text-gray-900">{s.value}</p>
               <p className="text-sm text-gray-400">{s.label}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

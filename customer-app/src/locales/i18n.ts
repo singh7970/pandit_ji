@@ -4,7 +4,7 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
-      welcome: 'Welcome to PanditJi',
+      welcome: 'Welcome to Vidhi Vidhan',
       tagline: 'Book Verified Pandits for Every Puja — On Demand',
       selectLanguage: 'Select Language / भाषा चुनें',
       continue: 'Continue',
@@ -52,7 +52,7 @@ const resources = {
   },
   hi: {
     translation: {
-      welcome: 'पंडितजी में आपका स्वागत है',
+      welcome: 'विधि विधान में आपका स्वागत है',
       tagline: 'हर पूजा के लिए सत्यापित पंडित बुक करें — ऑन डिमांड',
       selectLanguage: 'भाषा चुनें / Select Language',
       continue: 'आगे बढ़ें',
