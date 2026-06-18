@@ -11,6 +11,9 @@ const { width } = Dimensions.get('window');
 const CITIES = ['Delhi NCR', 'Mumbai', 'Bengaluru', 'Hyderabad', 'Pune'];
 
 const RegisterSchema = Yup.object().shape({
+  phone: Yup.string()
+    .matches(/^[6-9]\d{9}$/, 'Enter a valid 10-digit mobile number')
+    .required('Phone number is required'),
   name: Yup.string()
     .min(3, 'Name must be at least 3 characters')
     .required('Full name is required'),
@@ -18,7 +21,6 @@ const RegisterSchema = Yup.object().shape({
 
 export default function RegisterScreen({ navigation }: any) {
   const { t } = useTranslation();
-  const { user, setUser, login, token } = useAuthStore();
   const [selectedCity, setSelectedCity] = useState(CITIES[0]);
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -31,37 +33,52 @@ export default function RegisterScreen({ navigation }: any) {
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <Text style={styles.logoMark}>🌸</Text>
           <Text style={styles.title}>{t('register')}</Text>
-          <Text style={styles.subtitle}>Tell us a bit more about you to get started</Text>
+          <Text style={styles.subtitle}>Register your account to get started</Text>
 
           <Formik
-            initialValues={{ name: '' }}
+            initialValues={{ phone: '', name: '' }}
             validationSchema={RegisterSchema}
             onSubmit={async (values, { setSubmitting, setFieldError }) => {
+              const fullPhone = `+91${values.phone}`;
               try {
-                const response = await api.updateProfile({
+                await api.sendOtp(fullPhone, 'signup');
+                navigation.navigate('Otp', {
+                  phone: fullPhone,
                   name: values.name,
                   city: selectedCity,
+                  isSignup: true
                 });
-                
-                // Update profile in store
-                const updatedUser = {
-                  ...user!,
-                  name: values.name,
-                  city: selectedCity,
-                };
-                
-                // Re-login to update state completely
-                await login(token!, updatedUser);
               } catch (e: any) {
                 setSubmitting(false);
-                setFieldError('name', e.response?.data?.detail || 'Failed to update profile. Try again.');
+                const errMsg = e.response?.data?.detail || 'Failed to send OTP. Try again.';
+                setFieldError('phone', errMsg);
               }
             }}
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
               <View style={styles.form}>
+                {/* Phone Input */}
+                <Text style={styles.inputLabel}>{t('phonePrompt')}</Text>
+                <View style={styles.phoneInputContainer}>
+                  <Text style={styles.prefix}>+91</Text>
+                  <TextInput
+                    style={styles.phoneInput}
+                    placeholder="Enter your number"
+                    placeholderTextColor="#A0988E"
+                    keyboardType="number-pad"
+                    maxLength={10}
+                    onChangeText={handleChange('phone')}
+                    onBlur={handleBlur('phone')}
+                    value={values.phone}
+                    editable={!isSubmitting}
+                  />
+                </View>
+                {errors.phone && touched.phone && (
+                  <Text style={styles.errorText}>{errors.phone}</Text>
+                )}
+
                 {/* Name Input */}
-                <Text style={styles.inputLabel}>{t('fullName')}</Text>
+                <Text style={[styles.inputLabel, { marginTop: 20 }]}>{t('fullName')}</Text>
                 <View style={styles.inputContainer}>
                   <TextInput
                     style={styles.input}
@@ -119,8 +136,18 @@ export default function RegisterScreen({ navigation }: any) {
                   {isSubmitting ? (
                     <ActivityIndicator size="small" color="#FFFFFF" />
                   ) : (
-                    <Text style={styles.buttonText}>{t('continue')}</Text>
+                    <Text style={styles.buttonText}>{t('register')}</Text>
                   )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{ marginTop: 20, alignItems: 'center' }}
+                  onPress={() => navigation.navigate('Login')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ fontSize: 14, color: '#FF9933', fontWeight: '700' }}>
+                    Already have an account? Login
+                  </Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -184,6 +211,37 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     height: '100%',
   },
+  prefix: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginRight: 8,
+    borderRightWidth: 1.5,
+    borderRightColor: '#EFEBE4',
+    paddingRight: 10,
+  },
+  phoneInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#EFEBE4',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 54,
+  },
+  phoneInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#1A1A1A',
+    fontWeight: '600',
+    height: '100%',
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      },
+    }),
+  } as any,
   errorText: {
     fontSize: 12,
     color: '#EF4444',

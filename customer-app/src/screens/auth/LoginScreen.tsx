@@ -33,8 +33,8 @@ export default function LoginScreen({ navigation }: any) {
             onSubmit={async (values, { setSubmitting, setFieldError }) => {
               const fullPhone = `+91${values.phone}`;
               try {
-                await api.sendOtp(fullPhone);
-                navigation.navigate('Otp', { phone: fullPhone });
+                await api.sendOtp(fullPhone, 'login');
+                navigation.navigate('Otp', { phone: fullPhone, isSignup: false });
               } catch (err: any) {
                 const errMsg = err.response?.data?.detail || 'Failed to send OTP. Please try again.';
                 setFieldError('phone', errMsg);
@@ -77,6 +77,16 @@ export default function LoginScreen({ navigation }: any) {
                   ) : (
                     <Text style={styles.buttonText}>{t('sendOtp')}</Text>
                   )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{ marginTop: 20, alignItems: 'center' }}
+                  onPress={() => navigation.navigate('Register')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ fontSize: 14, color: '#FF9933', fontWeight: '700' }}>
+                    Don't have an account? Register
+                  </Text>
                 </TouchableOpacity>
               </View>
             )}

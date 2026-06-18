@@ -7,9 +7,9 @@ import { useAuthStore } from '../../store/authStore';
 const { width } = Dimensions.get('window');
 
 export default function OtpScreen({ route, navigation }: any) {
-  const { phone } = route.params;
+  const { phone, name, city, isSignup } = route.params;
   const { t } = useTranslation();
-  const login = useAuthStore((state) => state.login);
+  const { login, setUser } = useAuthStore();
 
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(60);
@@ -35,11 +35,17 @@ export default function OtpScreen({ route, navigation }: any) {
     // Testing bypass for "123456"
     if (otp === '123456') {
       try {
-        const response = await api.verifyOtp(phone, otp);
+        const response = await api.verifyOtp(phone, otp, name);
         const { access_token, user } = response.data;
         await login(access_token, user);
-        if (!user.name || !user.city) {
-          navigation.replace('Register');
+        
+        if (isSignup) {
+          try {
+            await api.updateProfile({ name, city });
+            setUser({ ...user, name, city });
+          } catch (profileErr) {
+            console.error("Failed to update profile info:", profileErr);
+          }
         }
         setLoading(false);
         return;
@@ -48,32 +54,36 @@ export default function OtpScreen({ route, navigation }: any) {
         const mockUser = {
           id: "00000000-0000-0000-0000-000000000000",
           phone: phone,
-          name: "Test User",
-          city: "",
+          name: name || "Test Devotee",
+          city: city || "Delhi NCR",
           role: "CUSTOMER" as const,
           is_active: true,
           created_at: new Date().toISOString()
         };
         await login("mock_access_token", mockUser);
-        navigation.replace('Register');
         setLoading(false);
         return;
       }
     }
 
     try {
-      const response = await api.verifyOtp(phone, otp);
+      const response = await api.verifyOtp(phone, otp, name);
       const { access_token, user } = response.data;
       
       // Save tokens and user info in global state + AsyncStorage
       await login(access_token, user);
 
-      // Check if registration is complete
-      if (!user.name || !user.city) {
-        navigation.replace('Register');
+      if (isSignup) {
+        try {
+          await api.updateProfile({ name, city });
+          setUser({ ...user, name, city });
+        } catch (profileErr) {
+          console.error("Failed to update profile info:", profileErr);
+        }
       } else {
-        // Authenticated successfully and profile complete.
-        // The navigator will switch stack automatically via useAuthStore.
+        if (!user.name || !user.city) {
+          navigation.replace('Register');
+        }
       }
     } catch (e: any) {
       setError(e.response?.data?.detail || 'Invalid verification code. Please try again.');
