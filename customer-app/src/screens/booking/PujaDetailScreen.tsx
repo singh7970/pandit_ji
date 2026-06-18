@@ -85,7 +85,7 @@ export default function PujaDetailScreen({ route, navigation }: any) {
         <View style={{ width: 44 }} />
       </View>
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={true}>
         {/* Visual Hero Card */}
         <View style={styles.heroContainer}>
           <View style={styles.heroOverlay}>
@@ -161,6 +161,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFDF7',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   header: {
     flexDirection: 'row',
