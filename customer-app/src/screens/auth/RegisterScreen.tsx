@@ -206,11 +206,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   input: {
+    flex: 1,
     fontSize: 15,
     color: '#1A1A1A',
     fontWeight: '600',
     height: '100%',
-  },
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      },
+    }),
+  } as any,
   prefix: {
     fontSize: 15,
     fontWeight: '600',
