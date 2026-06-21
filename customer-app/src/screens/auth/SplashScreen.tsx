@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Animated, Image } from 'react-native';
+import { View, Text, StyleSheet, Animated, Image, Platform } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 
 export default function SplashScreen({ navigation }: any) {
@@ -42,9 +42,10 @@ export default function SplashScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-        {/* Decorative spiritual symbol or circle */}
         <View style={styles.symbolCircle}>
-          <Text style={styles.symbolText}>🕉️</Text>
+          <View style={styles.symbolInner}>
+            <Text style={styles.symbolText}>ॐ</Text>
+          </View>
         </View>
         <Text style={styles.logoTitle}>विधि विधान</Text>
         <Text style={styles.logoSub}>Vidhi Vidhan</Text>
@@ -67,10 +68,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   symbolCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#FFFDF7',
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: '#E07B39',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -80,8 +81,22 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 8,
   },
+  symbolInner: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    borderWidth: 1.5,
+    borderColor: '#C9933A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   symbolText: {
-    fontSize: 50,
+    fontSize: 52,
+    fontWeight: 'bold',
+    color: '#FDF8F3',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'serif',
+    textAlign: 'center',
+    marginTop: Platform.OS === 'web' ? 0 : -6,
   },
   logoTitle: {
     fontSize: 48,

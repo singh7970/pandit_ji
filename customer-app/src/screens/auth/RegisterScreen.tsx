@@ -31,7 +31,11 @@ export default function RegisterScreen({ navigation }: any) {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <Text style={styles.logoMark}>🌸</Text>
+          <View style={styles.logoContainer}>
+            <View style={styles.logoInner}>
+              <Text style={styles.logoText}>ॐ</Text>
+            </View>
+          </View>
           <Text style={styles.title}>{t('register')}</Text>
           <Text style={styles.subtitle}>Register your account to get started</Text>
 
@@ -169,10 +173,38 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingBottom: 24,
   },
-  logoMark: {
-    fontSize: 48,
+  logoContainer: {
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: '#E07B39',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: '#E07B39',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+    marginTop: 20,
+  },
+  logoInner: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    borderWidth: 1.5,
+    borderColor: '#C9933A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoText: {
+    fontSize: 52,
+    fontWeight: 'bold',
+    color: '#FDF8F3',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'serif',
     textAlign: 'center',
-    marginBottom: 16,
+    marginTop: Platform.OS === 'web' ? 0 : -6,
   },
   title: {
     fontSize: 26,

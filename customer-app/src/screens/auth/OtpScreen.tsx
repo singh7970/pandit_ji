@@ -113,7 +113,11 @@ export default function OtpScreen({ route, navigation }: any) {
         style={{ flex: 1 }}
       >
         <View style={styles.content}>
-          <Text style={styles.logoMark}>🔒</Text>
+          <View style={styles.logoContainer}>
+            <View style={styles.logoInner}>
+              <Text style={styles.logoText}>ॐ</Text>
+            </View>
+          </View>
           <Text style={styles.title}>{t('verifyOtp')}</Text>
           <Text style={styles.subtitle}>{t('enterOtp', { phone })}</Text>
 
@@ -199,10 +203,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     justifyContent: 'center',
   },
-  logoMark: {
-    fontSize: 48,
+  logoContainer: {
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: '#E07B39',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#E07B39',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  logoInner: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    borderWidth: 1.5,
+    borderColor: '#C9933A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoText: {
+    fontSize: 52,
+    fontWeight: 'bold',
+    color: '#FDF8F3',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'serif',
     textAlign: 'center',
-    marginBottom: 20,
+    marginTop: Platform.OS === 'web' ? 0 : -6,
   },
   title: {
     fontSize: 28,
