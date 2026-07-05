@@ -24,53 +24,6 @@ const STATUS_COLOR: Record<string, string> = {
   PARTIALLY_REFUNDED: "orange",
 };
 
-const MOCK_PAYMENTS: PaymentRecord[] = [
-  {
-    id: "pay_NdkA9d82jdLa7",
-    booking_id: "BK-102945",
-    razorpay_order_id: "order_Ndk8djsKLa2",
-    razorpay_payment_id: "pay_NdkA9d82jdLa7",
-    razorpay_refund_id: null,
-    amount: 2100,
-    refund_amount: null,
-    status: "PAID",
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: "pay_MldK90172jd9a",
-    booking_id: "BK-102943",
-    razorpay_order_id: "order_Mld01j29Kda",
-    razorpay_payment_id: "pay_MldK90172jd9a",
-    razorpay_refund_id: null,
-    amount: 2600,
-    refund_amount: null,
-    status: "PAID",
-    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: "pay_Pla920182jd8s",
-    booking_id: "BK-102944",
-    razorpay_order_id: "order_Pla0182Kska",
-    razorpay_payment_id: null,
-    razorpay_refund_id: null,
-    amount: 1500,
-    refund_amount: null,
-    status: "CREATED",
-    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-  {
-    id: "pay_Rla729102ld9a",
-    booking_id: "BK-102940",
-    razorpay_order_id: "order_Rla72910Kla",
-    razorpay_payment_id: "pay_Rla729102ld9a",
-    razorpay_refund_id: "rfnd_Tla8201",
-    amount: 3100,
-    refund_amount: 3100,
-    status: "REFUNDED",
-    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-  }
-];
-
 export default function PaymentsPage() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,14 +33,11 @@ export default function PaymentsPage() {
     setLoading(true);
     endpoints.paymentsList()
       .then((r) => {
-        if (r.data && Array.isArray(r.data) && r.data.length > 0) {
-          setPayments(r.data);
-        } else {
-          setPayments(MOCK_PAYMENTS);
-        }
+        setPayments(r.data || []);
       })
-      .catch(() => {
-        setPayments(MOCK_PAYMENTS);
+      .catch((err) => {
+        console.error("Failed to load payments:", err);
+        setPayments([]);
       })
       .finally(() => setLoading(false));
   };

@@ -15,45 +15,6 @@ interface Booking {
   customer_id: string; pandit_id: string; puja_id: string;
 }
 
-const MOCK_BOOKINGS: Booking[] = [
-  {
-    id: "BK-102943",
-    status: "CONFIRMED",
-    city: "Delhi NCR",
-    address: "Flat 402, Shanti Heights, Sector 62, Noida",
-    amount: 2600,
-    scheduled_at: new Date(Date.now() + 86400000).toISOString(),
-    created_at: new Date().toISOString(),
-    customer_id: "cust1",
-    pandit_id: "p1",
-    puja_id: "1",
-  },
-  {
-    id: "BK-102944",
-    status: "PENDING",
-    city: "Noida",
-    address: "Sector 15, Noida",
-    amount: 1500,
-    scheduled_at: new Date(Date.now() + 86400000 * 2).toISOString(),
-    created_at: new Date().toISOString(),
-    customer_id: "cust2",
-    pandit_id: "",
-    puja_id: "3",
-  },
-  {
-    id: "BK-102945",
-    status: "COMPLETED",
-    city: "Delhi NCR",
-    address: "Phase 1, Om Vihar, Gurgaon",
-    amount: 2100,
-    scheduled_at: new Date(Date.now() - 86400000).toISOString(),
-    created_at: new Date().toISOString(),
-    customer_id: "cust3",
-    pandit_id: "p2",
-    puja_id: "1",
-  }
-];
-
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,15 +26,18 @@ export default function BookingsPage() {
     setLoading(true);
     endpoints.bookings(status ? { status } : {})
       .then((r) => {
-        if (r.data?.items && r.data.items.length > 0) {
+        if (r.data?.items) {
           setBookings(r.data.items);
-        } else if (r.data && Array.isArray(r.data) && r.data.length > 0) {
+        } else if (r.data && Array.isArray(r.data)) {
           setBookings(r.data);
         } else {
-          setBookings(MOCK_BOOKINGS);
+          setBookings([]);
         }
       })
-      .catch(() => setBookings(MOCK_BOOKINGS))
+      .catch((err) => {
+        console.error("Failed to load bookings:", err);
+        setBookings([]);
+      })
       .finally(() => setLoading(false));
   };
 

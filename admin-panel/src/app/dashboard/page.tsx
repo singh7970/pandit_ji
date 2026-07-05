@@ -6,19 +6,6 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { StatCard, PageHeader, LoadingSpinner } from "@/components/ui";
 import { endpoints } from "@/lib/api";
 
-const MOCK_TREND = [
-  { month: "Jan", gmv: 42000 }, { month: "Feb", gmv: 67000 },
-  { month: "Mar", gmv: 55000 }, { month: "Apr", gmv: 89000 },
-  { month: "May", gmv: 112000 }, { month: "Jun", gmv: 134000 },
-];
-
-const PUJA_MIX = [
-  { name: "Satyanarayan Puja", value: 35 },
-  { name: "Griha Pravesh", value: 25 },
-  { name: "Ganesh Puja", value: 20 },
-  { name: "Others", value: 20 },
-];
-
 const COLORS = ["#FF9933", "#8B0000", "#22C55E", "#6366F1"];
 
 interface Analytics {
@@ -37,15 +24,15 @@ export default function DashboardPage() {
   useEffect(() => {
     endpoints.analytics()
       .then((r) => setData(r.data))
-      .catch(() => {
-        // Fallback mock data for development
+      .catch((err) => {
+        console.error("Failed to load analytics:", err);
         setData({
-          gmv: 134000, revenue: 24120, total_bookings: 248,
-          completed_bookings: 201, total_customers: 183,
-          active_pandits: 32, pending_pandits: 7, completion_rate: 81.0,
-          avg_rating: 4.7,
-          gmv_trend: MOCK_TREND,
-          puja_mix: PUJA_MIX,
+          gmv: 0, revenue: 0, total_bookings: 0,
+          completed_bookings: 0, total_customers: 0,
+          active_pandits: 0, pending_pandits: 0, completion_rate: 0,
+          avg_rating: 0,
+          gmv_trend: [],
+          puja_mix: [],
         });
       })
       .finally(() => setLoading(false));

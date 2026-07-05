@@ -14,45 +14,6 @@ interface Customer {
   created_at: string;
 }
 
-const MOCK_CUSTOMERS: Customer[] = [
-  {
-    id: "c-101",
-    phone: "+919876543210",
-    name: "Priyanshu Singh",
-    city: "Delhi NCR",
-    role: "CUSTOMER",
-    is_active: true,
-    created_at: new Date(Date.now() - 86400000 * 15).toISOString(),
-  },
-  {
-    id: "c-102",
-    phone: "+919988776655",
-    name: "Aarav Sharma",
-    city: "Mumbai",
-    role: "CUSTOMER",
-    is_active: true,
-    created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
-  },
-  {
-    id: "c-103",
-    phone: "+919123456789",
-    name: "Rohan Verma",
-    city: "Bengaluru",
-    role: "CUSTOMER",
-    is_active: false,
-    created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
-  },
-  {
-    id: "c-104",
-    phone: "+919876501234",
-    name: "Aditi Iyer",
-    city: "Pune",
-    role: "CUSTOMER",
-    is_active: true,
-    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-  }
-];
-
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,14 +23,11 @@ export default function CustomersPage() {
     setLoading(true);
     endpoints.customers()
       .then((r) => {
-        if (r.data && Array.isArray(r.data) && r.data.length > 0) {
-          setCustomers(r.data);
-        } else {
-          setCustomers(MOCK_CUSTOMERS);
-        }
+        setCustomers(r.data || []);
       })
-      .catch(() => {
-        setCustomers(MOCK_CUSTOMERS);
+      .catch((err) => {
+        console.error("Failed to load customers:", err);
+        setCustomers([]);
       })
       .finally(() => setLoading(false));
   };
