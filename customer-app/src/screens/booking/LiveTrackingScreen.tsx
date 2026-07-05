@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions, Animated, Linking, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions, Animated, Linking, Alert, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Phone, MapPin, Navigation, MessageSquare, ArrowLeft } from 'lucide-react-native';
+import { api } from '../../services/api';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LiveTrackingScreen({ route, navigation }: any) {
-  const { bookingId } = route.params || { bookingId: 'BK-102943' };
+  const { bookingId } = route.params || {};
   const { t } = useTranslation();
 
+  const [booking, setBooking] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [eta, setEta] = useState(15);
   const [distance, setDistance] = useState(2.4);
   const [status, setStatus] = useState('Pandit is on the way');
@@ -18,6 +21,37 @@ export default function LiveTrackingScreen({ route, navigation }: any) {
   const dotY = React.useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    if (!bookingId) {
+      setLoading(false);
+      return;
+    }
+
+    api.getBookingDetail(bookingId)
+      .then((res) => {
+        setBooking(res.data);
+        if (res.data.status === 'PANDIT_ARRIVED') {
+          setStatus('Pandit has arrived at location');
+          setEta(0);
+          setDistance(0);
+        } else if (res.data.status === 'IN_PROGRESS') {
+          setStatus('Puja is in progress');
+          setEta(0);
+          setDistance(0);
+        } else if (res.data.status === 'COMPLETED') {
+          setStatus('Puja Completed');
+          setEta(0);
+          setDistance(0);
+        } else {
+          setStatus('Pandit is on the way');
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to load tracking details:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+
     // Animate dot on a loop simulating Pandit walking
     const runAnimation = () => {
       Animated.sequence([
@@ -34,20 +68,35 @@ export default function LiveTrackingScreen({ route, navigation }: any) {
 
     runAnimation();
 
-    // Timer to decrement ETA & distance
+    // Timer to decrement ETA & distance if not arrived
     const interval = setInterval(() => {
-      setEta((prev) => (prev > 1 ? prev - 1 : 1));
-      setDistance((prev) => (prev > 0.2 ? parseFloat((prev - 0.15).toFixed(2)) : 0.2));
+      if (booking?.status !== 'PANDIT_ARRIVED' && booking?.status !== 'IN_PROGRESS' && booking?.status !== 'COMPLETED') {
+        setEta((prev) => (prev > 1 ? prev - 1 : 1));
+        setDistance((prev) => (prev > 0.2 ? parseFloat((prev - 0.15).toFixed(2)) : 0.2));
+      }
     }, 10000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [bookingId]);
 
   const handleCall = () => {
-    Linking.openURL('tel:+919876543210').catch(() => {
-      Alert.alert('Calling not supported', 'Please dial +919876543210 manually');
-    });
+    const phoneNum = booking?.pandit?.phone;
+    if (phoneNum) {
+      Linking.openURL(`tel:${phoneNum}`).catch(() => {
+        Alert.alert('Calling not supported', `Please dial ${phoneNum} manually`);
+      });
+    } else {
+      Alert.alert('Unavailable', 'Pandit phone number is not available yet.');
+    }
   };
+
+  if (loading && !booking) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFDF7' }}>
+        <ActivityIndicator size="large" color="#FF9933" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -117,8 +166,12 @@ export default function LiveTrackingScreen({ route, navigation }: any) {
             <Text style={styles.avatarEmoji}>👤</Text>
           </View>
           <View style={styles.panditDetails}>
-            <Text style={styles.panditName}>Pandit Ramesh Shastri</Text>
-            <Text style={styles.panditRating}>★ 4.9 · Verified Gold Pandit</Text>
+            <Text style={styles.panditName}>{booking?.pandit?.name || 'Assigning Pandit...'}</Text>
+            <Text style={styles.panditRating}>
+              {booking?.pandit
+                ? `★ ${booking.pandit.rating_avg || 4.9} · Verified Pandit`
+                : 'Searching for nearest available priest'}
+            </Text>
           </View>
           
           <View style={styles.actionButtons}>

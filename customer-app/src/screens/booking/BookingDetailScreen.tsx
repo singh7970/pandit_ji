@@ -28,19 +28,10 @@ export default function BookingDetailScreen({ route, navigation }: any) {
       .then((res) => {
         setBooking(res.data);
       })
-      .catch(() => {
-        // Fallback for development/testing
+      .catch((err) => {
+        console.warn("Failed to fetch booking details:", err);
         if (!booking) {
-          setBooking({
-            id: bookingId,
-            puja: { name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा', base_price: 2100 },
-            scheduled_at: new Date(Date.now() + 86400000).toISOString(),
-            status: 'CONFIRMED',
-            amount: 2600, // including samagri kit
-            kit_ordered: true,
-            address: 'Flat 402, Shanti Heights, Sector 62, Noida',
-            pandit: { name: 'Pandit Ramesh Shastri', phone: '+919876543210', rating_avg: 4.9 },
-          });
+          setBooking(null);
         }
       })
       .finally(() => setLoading(false));
