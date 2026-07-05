@@ -9,6 +9,8 @@ interface PanditApplication {
     id: string; user_id: string; sampraday: string; specialisations: string[];
     languages: string[]; experience_years: number; bio: string;
     document_urls: string[]; created_at: string;
+    status?: string;
+    tier?: string;
   };
   user: { id: string; name: string; phone: string; city: string };
 }
