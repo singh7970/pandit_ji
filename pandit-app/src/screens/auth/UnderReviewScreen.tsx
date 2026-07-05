@@ -1,12 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Linking, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Clock, ShieldCheck, PhoneCall } from 'lucide-react-native';
+import { Clock, ShieldCheck, PhoneCall, RefreshCw } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
+import { api } from '../../services/api';
 
 export default function UnderReviewScreen() {
   const { t } = useTranslation();
   const logout = useAuthStore((state) => state.logout);
+  const setUser = useAuthStore((state) => state.setUser);
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const handleContactSupport = () => {
     Linking.openURL('tel:+919876543210').catch(() => {
@@ -19,6 +22,27 @@ export default function UnderReviewScreen() {
       await logout();
     } catch (err) {
       console.warn("Logout failed:", err);
+    }
+  };
+
+  const handleCheckStatus = async () => {
+    setRefreshing(true);
+    try {
+      const res = await api.getProfile();
+      if (res.data) {
+        await setUser(res.data);
+        const newStatus = res.data.pandit_profile?.status;
+        if (newStatus === 'ACTIVE') {
+          alert('Congratulations! Your application has been approved.');
+        } else {
+          alert('Your application is still under review.');
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to check status:", err);
+      alert('Connection error. Please try again.');
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -40,6 +64,22 @@ export default function UnderReviewScreen() {
         <TouchableOpacity style={styles.supportButton} onPress={handleContactSupport} activeOpacity={0.8}>
           <PhoneCall size={18} color="#FF9933" style={{ marginRight: 8 }} />
           <Text style={styles.supportButtonText}>Contact Admin Support</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.refreshButton} 
+          onPress={handleCheckStatus} 
+          disabled={refreshing} 
+          activeOpacity={0.8}
+        >
+          {refreshing ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <>
+              <RefreshCw size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.refreshButtonText}>Check Approval Status</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.8}>
@@ -121,6 +161,27 @@ const styles = StyleSheet.create({
   supportButtonText: {
     fontSize: 14,
     color: '#FF9933',
+    fontWeight: '700',
+  },
+  refreshButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#8B0000',
+    height: 52,
+    borderRadius: 12,
+    paddingHorizontal: 24,
+    justifyContent: 'center',
+    width: '100%',
+    marginBottom: 16,
+    shadowColor: '#8B0000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  refreshButtonText: {
+    fontSize: 14,
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   logoutButton: {

@@ -111,8 +111,6 @@ export default function AppNavigator() {
             <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Otp" component={OtpScreen} />
-            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            <Stack.Screen name="UnderReview" component={UnderReviewScreen} />
           </>
         ) : (
           // Authenticated Stack

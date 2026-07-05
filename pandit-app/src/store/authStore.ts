@@ -29,7 +29,7 @@ interface AuthState {
   setLanguage: (lang: 'en' | 'hi') => Promise<void>;
   login: (token: string, user: PanditProfile) => Promise<void>;
   logout: () => Promise<void>;
-  setUser: (user: PanditProfile) => void;
+  setUser: (user: PanditProfile) => Promise<void>;
   setIsActiveDuty: (active: boolean) => void;
   initialize: () => Promise<void>;
 }
@@ -59,7 +59,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ token: null, user: null, isAuthenticated: false, isActiveDuty: false });
   },
 
-  setUser: (user) => {
+  setUser: async (user) => {
+    try {
+      await AsyncStorage.setItem('user_profile', JSON.stringify(user));
+    } catch (e) {
+      console.warn("Failed to persist user profile:", e);
+    }
     set({ user });
   },
 
