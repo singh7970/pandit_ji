@@ -2,8 +2,9 @@ import uuid
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.models.puja import Puja
+from app.core.config import settings
 
-DATABASE_URL = "postgresql://panditji:singh%407970@localhost:5432/pandit_ji"
+DATABASE_URL = settings.DATABASE_URL
 
 engine = create_engine(DATABASE_URL, connect_args={"options": "-c search_path=app_schema"})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
