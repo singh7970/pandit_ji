@@ -71,6 +71,7 @@ media/
 # ─── Raw dev notes (local only) ───────────────────────────────────────────
 rawdata/
 rawdata */
+learning_notes.md
 
 # ─── Agent-specific files (local only) ─────────────────────────────────────
 .agents/
