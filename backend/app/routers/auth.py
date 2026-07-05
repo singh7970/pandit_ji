@@ -61,6 +61,14 @@ def verify_otp_endpoint(body: VerifyOTPRequest, db: Session = Depends(get_db)):
             detail="Invalid or expired OTP",
         )
 
+    from app.models.user import User
+    user = db.query(User).filter(User.phone == body.phone).first()
+    if not user and not body.name:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Mobile number is not registered. Please sign up first.",
+        )
+
     user = get_or_create_user(db, body.phone, body.name, body.role)
     return create_tokens(user)
 
