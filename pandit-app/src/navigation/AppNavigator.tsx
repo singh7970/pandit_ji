@@ -117,7 +117,7 @@ export default function AppNavigator() {
           <>
             {!profileStatus ? (
               <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            ) : profileStatus === 'PENDING' ? (
+            ) : profileStatus !== 'ACTIVE' ? (
               <Stack.Screen name="UnderReview" component={UnderReviewScreen} />
             ) : (
               // Active Priest stack

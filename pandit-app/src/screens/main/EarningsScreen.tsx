@@ -6,22 +6,6 @@ import { api } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 
-const MOCK_TRANS = [
-  { id: 't1', desc: 'Satyanarayan Puja (Gurgaon)', date: 'June 10', amt: 1722, type: 'PAYOUT' },
-  { id: 't2', desc: 'Ganesh Puja (Noida)', date: 'June 08', amt: 1230, type: 'PAYOUT' },
-  { id: 't3', desc: 'Weekly Bonus Reward', date: 'June 07', amt: 500, type: 'BONUS' },
-];
-
-const WEEKLY_DATA = [
-  { day: 'Mon', amt: 1500 },
-  { day: 'Tue', amt: 2100 },
-  { day: 'Wed', amt: 1200 },
-  { day: 'Thu', amt: 3500 },
-  { day: 'Fri', amt: 0 },
-  { day: 'Sat', amt: 1800 },
-  { day: 'Sun', amt: 2400 },
-];
-
 export default function EarningsScreen() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
@@ -34,10 +18,11 @@ export default function EarningsScreen() {
       })
       .catch(() => {
         setEarnings({
-          total_revenue: 12552,
-          completed_pujas: 8,
-          weekly_total: 10100,
-          escrow_balance: 3450,
+          total_earned: 0,
+          total_pujas: 0,
+          pending_payout: 0,
+          this_month: 0,
+          last_month: 0,
         });
       })
       .finally(() => setLoading(false));
@@ -51,9 +36,6 @@ export default function EarningsScreen() {
     );
   }
 
-  // Calculate highest amount for charting height scale
-  const maxAmt = Math.max(...WEEKLY_DATA.map((d) => d.amt)) || 1;
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -66,13 +48,13 @@ export default function EarningsScreen() {
           <View style={styles.statsCard}>
             <TrendingUp size={20} color="#FF9933" style={{ marginBottom: 8 }} />
             <Text style={styles.statsLabel}>{t('totalRevenue')}</Text>
-            <Text style={styles.statsValue}>₹{earnings.total_revenue}</Text>
+            <Text style={styles.statsValue}>₹{earnings?.total_earned || 0}</Text>
           </View>
 
           <View style={styles.statsCard}>
             <Award size={20} color="#FF9933" style={{ marginBottom: 8 }} />
             <Text style={styles.statsLabel}>{t('completedPujasCount')}</Text>
-            <Text style={styles.statsValue}>{earnings.completed_pujas}</Text>
+            <Text style={styles.statsValue}>{earnings?.total_pujas || 0}</Text>
           </View>
         </View>
 
@@ -82,26 +64,24 @@ export default function EarningsScreen() {
             <Text style={styles.escrowLabel}>Pending Payout Balance</Text>
             <Text style={styles.escrowSub}>Auto-settles tonight at 11:59 PM</Text>
           </View>
-          <Text style={styles.escrowAmount}>₹{earnings.escrow_balance}</Text>
+          <Text style={styles.escrowAmount}>₹{earnings?.pending_payout || 0}</Text>
         </View>
 
-        {/* Custom Weekly Analytic Bar Chart */}
+        {/* Monthly Summary */}
         <View style={styles.chartCard}>
-          <Text style={styles.chartTitle}>{t('weeklyEarnings')}</Text>
-          <Text style={styles.chartSub}>Weekly total: ₹{earnings.weekly_total}</Text>
+          <Text style={styles.chartTitle}>Monthly Earnings</Text>
+          <Text style={styles.chartSub}>Comparison with previous month</Text>
 
-          <View style={styles.chartContainer}>
-            {WEEKLY_DATA.map((item, idx) => {
-              const barHeight = (item.amt / maxAmt) * 100;
-              return (
-                <View key={idx} style={styles.chartBarWrapper}>
-                  <View style={styles.barBackground}>
-                    <View style={[styles.barFill, { height: `${barHeight}%` }]} />
-                  </View>
-                  <Text style={styles.chartBarLabel}>{item.day}</Text>
-                </View>
-              );
-            })}
+          <View style={{ marginTop: 16, gap: 12 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={{ fontSize: 13, color: '#666666', fontWeight: '600' }}>This Month</Text>
+              <Text style={{ fontSize: 15, color: '#1A1A1A', fontWeight: '800' }}>₹{earnings?.this_month || 0}</Text>
+            </View>
+            <View style={{ height: 1, backgroundColor: '#F5ECE0' }} />
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={{ fontSize: 13, color: '#666666', fontWeight: '600' }}>Last Month</Text>
+              <Text style={{ fontSize: 15, color: '#1A1A1A', fontWeight: '800' }}>₹{earnings?.last_month || 0}</Text>
+            </View>
           </View>
         </View>
 
@@ -109,18 +89,9 @@ export default function EarningsScreen() {
         <View style={styles.transactionsSection}>
           <Text style={styles.sectionTitle}>Recent Payout Settlements</Text>
           <View style={styles.transList}>
-            {MOCK_TRANS.map((item) => (
-              <View key={item.id} style={styles.transItem}>
-                <View style={styles.transDotContainer}>
-                  <Clock size={16} color="#888888" />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.transDesc}>{item.desc}</Text>
-                  <Text style={styles.transDate}>{item.date} · {item.type}</Text>
-                </View>
-                <Text style={styles.transAmt}>+₹{item.amt}</Text>
-              </View>
-            ))}
+            <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+              <Text style={{ color: '#888888', fontSize: 13, fontWeight: '600' }}>No recent payouts yet</Text>
+            </View>
           </View>
         </View>
       </ScrollView>

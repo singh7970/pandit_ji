@@ -7,19 +7,6 @@ import { api } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 
-const MOCK_POPULAR_PUJAS: Puja[] = [
-  { id: '1', name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा', base_price: 2100, duration_hrs: 2.5, deity: 'Vishnu' },
-  { id: '2', name_en: 'Griha Pravesh Puja', name_hi: 'गृह प्रवेश पूजा', base_price: 5100, duration_hrs: 4, deity: 'Ganesh' },
-  { id: '3', name_en: 'Ganesh Puja', name_hi: 'गणेश पूजा', base_price: 1500, duration_hrs: 1.5, deity: 'Ganesh' },
-  { id: '4', name_en: 'Maha Mrityunjaya Jaap', name_hi: 'महा मृत्युंजय जाप', base_price: 11000, duration_hrs: 6, deity: 'Shiva' },
-];
-
-const MOCK_PANDITS: Pandit[] = [
-  { id: 'p1', name: 'Pandit Ramesh Shastri', rating_avg: 4.9, experience_years: 15, languages: ['Hindi', 'Sanskrit'], sampraday: 'Vedic', photo_url: '' },
-  { id: 'p2', name: 'Pandit Sunil Dwivedi', rating_avg: 4.8, experience_years: 12, languages: ['Hindi', 'English'], sampraday: 'Vaishnav', photo_url: '' },
-  { id: 'p3', name: 'Pandit Alok Tiwary', rating_avg: 4.7, experience_years: 8, languages: ['Hindi', 'Bhojpuri'], sampraday: 'Vedic', photo_url: '' },
-];
-
 export default function BookingFlowScreen({ navigation }: any) {
   const { t } = useTranslation();
   const { 
@@ -27,7 +14,7 @@ export default function BookingFlowScreen({ navigation }: any) {
     kitOrdered, setKitOrdered, selectedPandit, setSelectedPandit, currentStep, setCurrentStep, resetBooking
   } = useBookingStore();
 
-  const [pujas, setPujas] = useState<Puja[]>(MOCK_POPULAR_PUJAS);
+  const [pujas, setPujas] = useState<Puja[]>([]);
   const [loadingPujas, setLoadingPujas] = useState(false);
 
   // Custom Date and Watch Picker states
@@ -41,7 +28,7 @@ export default function BookingFlowScreen({ navigation }: any) {
   const [localDate, setLocalDate] = useState('2026-06-12');
   const [localTime, setLocalTime] = useState('10:00 AM');
   const [localAddress, setLocalAddress] = useState('Flat 402, Shanti Heights, Sector 62, Noida');
-  const [availablePandits, setAvailablePandits] = useState<Pandit[]>(MOCK_PANDITS);
+  const [availablePandits, setAvailablePandits] = useState<Pandit[]>([]);
   const [loadingPandits, setLoadingPandits] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
@@ -110,10 +97,10 @@ export default function BookingFlowScreen({ navigation }: any) {
     setLoadingPujas(true);
     api.getPujas()
       .then((res) => {
-        setPujas(res.data.items || res.data);
+        setPujas(res.data.items || res.data || []);
       })
       .catch(() => {
-        setPujas(MOCK_POPULAR_PUJAS);
+        setPujas([]);
       })
       .finally(() => setLoadingPujas(false));
   }, []);
@@ -184,10 +171,10 @@ export default function BookingFlowScreen({ navigation }: any) {
       puja_id: selectedPuja?.id || '',
     })
       .then((res) => {
-        setAvailablePandits(res.data || MOCK_PANDITS);
+        setAvailablePandits(res.data || []);
       })
       .catch(() => {
-        setAvailablePandits(MOCK_PANDITS);
+        setAvailablePandits([]);
       })
       .finally(() => setLoadingPandits(false));
   };
@@ -231,25 +218,10 @@ export default function BookingFlowScreen({ navigation }: any) {
         }),
       ]).start();
 
-    } catch (e) {
-      // In development fallback, create a mock booking ID and succeed
-      setBookingId('BK-' + Math.floor(Math.random() * 900000 + 100000));
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+    } catch (e: any) {
       setSubmitting(false);
-      setCurrentStep(7);
-
-      Animated.parallel([
-        Animated.spring(successScale, {
-          toValue: 1,
-          friction: 6,
-          useNativeDriver: true,
-        }),
-        Animated.timing(successOpacity, {
-          toValue: 1,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      const errMsg = e.response?.data?.detail || 'Failed to complete booking. Please try again.';
+      alert(errMsg);
     }
   };
 

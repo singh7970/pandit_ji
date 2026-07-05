@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 from datetime import datetime
 import uuid
@@ -19,11 +19,32 @@ class UserUpdate(BaseModel):
     city: Optional[str] = None
 
 
+class PanditProfileResponse(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    sampraday: Optional[str] = None
+    specialisations: List[str] = []
+    languages: List[str] = []
+    experience_years: int = 0
+    tier: str
+    rating_avg: float
+    total_pujas: int
+    status: str
+    bio: Optional[str] = None
+    photo_url: Optional[str] = None
+    document_urls: List[str] = []
+    rejection_reason: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
 class UserResponse(UserBase):
     id: uuid.UUID
     role: str
     is_active: bool
     created_at: datetime
+    pandit_profile: Optional[PanditProfileResponse] = None
 
     class Config:
         from_attributes = True

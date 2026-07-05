@@ -33,20 +33,10 @@ export default function PujaDetailScreen({ route, navigation }: any) {
       .then((res) => {
         setPuja(res.data);
       })
-      .catch(() => {
-        // Fallback for development/testing if we don't have it
+      .catch((err) => {
         if (!puja) {
-          setPuja({
-            id: pujaId,
-            name_en: 'Satyanarayan Puja',
-            name_hi: 'सत्यनारायण पूजा',
-            description: 'The Satyanarayan Puja is a ritual performed to offer gratitude to Lord Vishnu. It brings peace, prosperity, and happiness to the household and is usually performed on auspicious occasions, housewarmings, or full moon days.',
-            duration_hrs: 2.5,
-            base_price: 2100,
-            tier_required: 'GOLD',
-            samagri_list: MOCK_SAMAGRI,
-            deity: 'Lord Vishnu',
-          });
+          alert('Failed to load puja details. Please try again.');
+          navigation.goBack();
         }
       })
       .finally(() => setLoading(false));

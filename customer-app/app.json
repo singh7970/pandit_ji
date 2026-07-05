@@ -10,10 +10,22 @@
       "supportsTablet": true
     },
     "android": {
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.singh912.vidhividhan"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "506ad1e5-cc7f-4804-ac61-c85c9d5ab04d"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/506ad1e5-cc7f-4804-ac61-c85c9d5ab04d"
     }
   }
 }

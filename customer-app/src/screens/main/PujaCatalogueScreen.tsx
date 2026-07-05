@@ -6,31 +6,23 @@ import { api, Puja } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 
-const MOCK_PUJAS = [
-  { id: '1', name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा', base_price: 2100, duration_hrs: 2.5, deity: 'Vishnu', icon: '🔱', occasion: 'Festivals' },
-  { id: '2', name_en: 'Griha Pravesh Puja', name_hi: 'गृह प्रवेश पूजा', base_price: 5100, duration_hrs: 4, deity: 'Ganesh', icon: '🏡', occasion: 'Housewarming' },
-  { id: '3', name_en: 'Ganesh Puja', name_hi: 'गणेश पूजा', base_price: 1500, duration_hrs: 1.5, deity: 'Ganesh', icon: '🐘', occasion: 'Festivals' },
-  { id: '4', name_en: 'Maha Mrityunjaya Jaap', name_hi: 'महा मृत्युंजय जाप', base_price: 11000, duration_hrs: 6, deity: 'Shiva', icon: '🕉️', occasion: 'Health' },
-  { id: '5', name_en: 'Rudrabhishek Puja', name_hi: 'रुद्राभिषेक पूजा', base_price: 3500, duration_hrs: 3, deity: 'Shiva', icon: '🌊', occasion: 'Solace' },
-  { id: '6', name_en: 'Saraswati Puja', name_hi: 'सरस्वती पूजा', base_price: 1800, duration_hrs: 2, deity: 'Saraswati', icon: '📖', occasion: 'Education' },
-];
-
 const OCCASIONS = ['All', 'Festivals', 'Housewarming', 'Health', 'Education', 'Solace'];
 
 export default function PujaCatalogueScreen({ navigation }: any) {
   const { t } = useTranslation();
-  const [pujas, setPujas] = useState<any[]>(MOCK_PUJAS);
-  const [loading, setLoading] = useState(false);
+  const [pujas, setPujas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedOccasion, setSelectedOccasion] = useState('All');
 
   useEffect(() => {
+    setLoading(true);
     api.getPujas()
       .then((res) => {
-        setPujas(res.data.items || res.data);
+        setPujas(res.data.items || res.data || []);
       })
       .catch(() => {
-        // Fallback already loaded
+        setPujas([]);
       })
       .finally(() => setLoading(false));
   }, []);

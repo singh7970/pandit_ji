@@ -5,26 +5,6 @@ import { Calendar, Clock, MapPin, IndianRupee } from 'lucide-react-native';
 import { api } from '../../services/api';
 import { useBookingStore } from '../../store/bookingStore';
 
-const MOCK_UPCOMING = [
-  {
-    id: 'b20',
-    puja: { name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा' },
-    scheduled_at: new Date(Date.now() + 86400000).toISOString(),
-    address: 'Flat 402, Shanti Heights, Noida Sector 62',
-    amount: 2100,
-  },
-];
-
-const MOCK_COMPLETED = [
-  {
-    id: 'b19',
-    puja: { name_en: 'Ganesh Puja', name_hi: 'गणेश पूजा' },
-    scheduled_at: new Date(Date.now() - 86400000).toISOString(),
-    address: 'Villa 12, Greens Complex, Greater Noida',
-    amount: 1500,
-  },
-];
-
 export default function BookingsScreen({ navigation }: any) {
   const { t } = useTranslation();
   const { setActiveBooking } = useBookingStore();
@@ -36,14 +16,14 @@ export default function BookingsScreen({ navigation }: any) {
     setLoading(true);
     api.getMyBookings()
       .then((res) => {
-        const list = res.data.items || res.data;
+        const list = res.data.items || res.data || [];
         const filtered = list.filter((b: any) => 
           activeTab === 'UPCOMING' ? b.status !== 'COMPLETED' && b.status !== 'CANCELLED' : b.status === 'COMPLETED'
         );
         setBookings(filtered);
       })
       .catch(() => {
-        setBookings(activeTab === 'UPCOMING' ? MOCK_UPCOMING : MOCK_COMPLETED);
+        setBookings([]);
       })
       .finally(() => setLoading(false));
   };

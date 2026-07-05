@@ -8,13 +8,6 @@ import { api, Puja } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 
-const MOCK_POPULAR_PUJAS = [
-  { id: '1', name_en: 'Satyanarayan Puja', name_hi: 'सत्यनारायण पूजा', base_price: 2100, duration_hrs: 2.5, deity: 'Vishnu', icon: '🔱' },
-  { id: '2', name_en: 'Griha Pravesh Puja', name_hi: 'गृह प्रवेश पूजा', base_price: 5100, duration_hrs: 4, deity: 'Ganesh', icon: '🏡' },
-  { id: '3', name_en: 'Ganesh Puja', name_hi: 'गणेश पूजा', base_price: 1500, duration_hrs: 1.5, deity: 'Ganesh', icon: '🐘' },
-  { id: '4', name_en: 'Maha Mrityunjaya Jaap', name_hi: 'महा मृत्युंजय जाप', base_price: 11000, duration_hrs: 6, deity: 'Shiva', icon: '🕉️' },
-];
-
 const MOCK_FESTIVALS = [
   { id: '1', name_en: 'Ganesh Chaturthi', date: 'Sept 15, 2026', image: '🐘' },
   { id: '2', name_en: 'Navratri Durga Puja', date: 'Oct 12, 2026', image: '🔱' },
@@ -34,14 +27,13 @@ export default function HomeScreen({ navigation }: any) {
     // Fetch pujas from API
     api.getPujas({ city: user?.city || '' })
       .then((res) => {
-        const items = res.data.items || res.data;
+        const items = res.data.items || res.data || [];
         setPujas(items);
         setFilteredPujas(items);
       })
       .catch(() => {
-        // Fallback to mock data for development
-        setPujas(MOCK_POPULAR_PUJAS as any);
-        setFilteredPujas(MOCK_POPULAR_PUJAS as any);
+        setPujas([]);
+        setFilteredPujas([]);
       });
   }, []);
 

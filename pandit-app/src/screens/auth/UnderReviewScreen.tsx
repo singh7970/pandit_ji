@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Linking, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Clock, ShieldCheck, PhoneCall, RefreshCw } from 'lucide-react-native';
+import { Clock, ShieldCheck, PhoneCall, RefreshCw, ShieldAlert } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { api } from '../../services/api';
 
@@ -9,6 +9,7 @@ export default function UnderReviewScreen() {
   const { t } = useTranslation();
   const logout = useAuthStore((state) => state.logout);
   const setUser = useAuthStore((state) => state.setUser);
+  const user = useAuthStore((state) => state.user);
   const [refreshing, setRefreshing] = React.useState(false);
 
   const handleContactSupport = () => {
@@ -34,6 +35,8 @@ export default function UnderReviewScreen() {
         const newStatus = res.data.pandit_profile?.status;
         if (newStatus === 'ACTIVE') {
           alert('Congratulations! Your application has been approved.');
+        } else if (newStatus === 'REJECTED') {
+          alert('Your application was rejected. Check details below or contact support.');
         } else {
           alert('Your application is still under review.');
         }
@@ -46,20 +49,42 @@ export default function UnderReviewScreen() {
     }
   };
 
+  const profileStatus = user?.pandit_profile?.status;
+  const rejectionReason = user?.pandit_profile?.rejection_reason;
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.iconCircle}>
-          <Clock size={48} color="#FF9933" />
+          {profileStatus === 'REJECTED' ? (
+            <ShieldAlert size={48} color="#EF4444" />
+          ) : (
+            <Clock size={48} color="#FF9933" />
+          )}
         </View>
 
-        <Text style={styles.title}>{t('underReview')}</Text>
-        <Text style={styles.subtitle}>{t('underReviewSub')}</Text>
+        <Text style={styles.title}>
+          {profileStatus === 'REJECTED' ? 'Application Rejected' : t('underReview')}
+        </Text>
+        <Text style={styles.subtitle}>
+          {profileStatus === 'REJECTED'
+            ? 'Your registration request has been reviewed and could not be approved by the admin team at this time.'
+            : t('underReviewSub')}
+        </Text>
 
-        <View style={styles.infoCard}>
-          <ShieldCheck size={20} color="#8B0000" style={{ marginRight: 12 }} />
-          <Text style={styles.infoText}>Documents are being cross-verified with official government registries.</Text>
-        </View>
+        {profileStatus === 'REJECTED' ? (
+          <View style={[styles.infoCard, { borderColor: '#EF4444', backgroundColor: '#FFF5F5' }]}>
+            <ShieldAlert size={20} color="#EF4444" style={{ marginRight: 12 }} />
+            <Text style={[styles.infoText, { color: '#EF4444' }]}>
+              Rejection Reason: {rejectionReason || 'Please contact admin support to resolve this.'}
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.infoCard}>
+            <ShieldCheck size={20} color="#8B0000" style={{ marginRight: 12 }} />
+            <Text style={styles.infoText}>Documents are being cross-verified with official government registries.</Text>
+          </View>
+        )}
 
         <TouchableOpacity style={styles.supportButton} onPress={handleContactSupport} activeOpacity={0.8}>
           <PhoneCall size={18} color="#FF9933" style={{ marginRight: 8 }} />
