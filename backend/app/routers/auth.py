@@ -23,13 +23,7 @@ async def send_otp(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    if is_rate_limited(body.phone):
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Too many OTP requests. Try again in 1 hour.",
-        )
-
-    # Check user registration status based on mode
+    # Check user registration status based on mode first
     if body.mode:
         from app.models.user import User
         user = db.query(User).filter(User.phone == body.phone).first()
@@ -43,6 +37,12 @@ async def send_otp(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Mobile number is not registered. Please sign up first.",
             )
+
+    if is_rate_limited(body.phone):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many OTP requests. Try again in 1 hour.",
+        )
 
     otp = generate_otp()
     store_otp(body.phone, otp)
