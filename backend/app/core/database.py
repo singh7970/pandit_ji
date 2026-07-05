@@ -1,16 +1,22 @@
+import sys
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
 # Pre-verify/create the search path schema to avoid startup crash on fresh Postgres databases
-temp_engine = create_engine(settings.DATABASE_URL)
+# We force the connection search path to 'public' to ensure the CREATE SCHEMA command can run safely
+temp_engine = create_engine(
+    settings.DATABASE_URL,
+    connect_args={"options": "-c search_path=public"}
+)
 try:
     with temp_engine.connect() as conn:
         conn.execute(text("CREATE SCHEMA IF NOT EXISTS app_schema"))
         conn.commit()
 except Exception as e:
-    print(f"Warning: Could not pre-create app_schema: {e}")
+    sys.stderr.write(f"Warning: Could not pre-create app_schema: {e}\n")
+    sys.stderr.flush()
 finally:
     temp_engine.dispose()
 

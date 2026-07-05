@@ -114,14 +114,22 @@ LINE 2: CREATE TABLE users ( ...
 
 ### The Solution (Programmatic Pre-verification)
 Instead of forcing the user to run SQL statements manually in a database console before deploying, we automated this inside the database initialization lifecycle ([database.py](file:///media/priyanshu-singh/B/2026/pandit_ji/backend/app/core/database.py)):
-1. We create a temporary, raw connection engine *without* specifying the custom search path:
-   `temp_engine = create_engine(settings.DATABASE_URL)`
-2. We run an idempotent DDL query to build the schema:
+1. We create a temporary, raw connection engine forcing the search path to `public` using connection parameters:
+   ```python
+   temp_engine = create_engine(
+       settings.DATABASE_URL,
+       connect_args={"options": "-c search_path=public"}
+   )
+   ```
+   This overrides any custom search paths set in the default environment connection string, guaranteeing a successful connection to the standard, pre-existing `public` schema.
+2. We run an idempotent DDL query to build the custom schema:
    `CREATE SCHEMA IF NOT EXISTS app_schema`
-3. We dispose of the temporary engine, and safely initialize our main SQLAlchemy connection pool which now connects to the existing schema successfully.
+3. We dispose of the temporary engine, and safely initialize our main SQLAlchemy connection pool which now connects to the newly created `app_schema` successfully.
 
 > [!NOTE]
 > **Interview Concepts:**
 > * **Idempotency**: An operation is *idempotent* if running it multiple times yields the same result without causing errors. `CREATE SCHEMA IF NOT EXISTS` is idempotent.
 > * **Search Path**: A parameter in Postgres defining the order in which schemas are searched when a query references a table name without its schema prefix.
+> * **Connection Arguments Override**: Forcing driver-level settings (`connect_args`) is standard practice to bypass URL query parameters during bootstrap scripts.
+
 
