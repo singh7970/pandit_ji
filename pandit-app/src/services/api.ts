@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'https://mean-shrimps-shop.loca.lt';
+const BASE_URL = 'https://pandit-ji-e3rz.onrender.com';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
