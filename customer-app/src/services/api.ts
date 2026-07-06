@@ -38,7 +38,7 @@ apiClient.interceptors.request.use(
 
 export const api = {
   // Auth
-  sendOtp: (phone: string, mode?: string) => apiClient.post('/auth/send-otp', { phone, mode }),
+  sendOtp: (phone: string, mode?: string) => apiClient.post('/auth/send-otp', { phone, mode, role: 'CUSTOMER' }),
   verifyOtp: (phone: string, otp: string, name?: string) => apiClient.post('/auth/verify-otp', { phone, otp, name }),
   refreshToken: (refreshToken: string) => apiClient.post('/auth/refresh', { refresh_token: refreshToken }),
 

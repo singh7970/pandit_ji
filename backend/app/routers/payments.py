@@ -129,7 +129,8 @@ def earnings(
     )
 
     now = datetime.now(timezone.utc)
-    this_month_start = now.replace(day=1, hour=0, minute=0, second=0)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     last_month_start = (this_month_start - timedelta(days=1)).replace(day=1)
 
     total = sum(b.pandit_payout or 0 for b in completed)
@@ -141,6 +142,14 @@ def earnings(
         b.pandit_payout or 0 for b in completed
         if b.created_at and last_month_start <= b.created_at.replace(tzinfo=timezone.utc) < this_month_start
     )
+    today_earned = sum(
+        b.pandit_payout or 0 for b in completed
+        if b.created_at and b.created_at.replace(tzinfo=timezone.utc) >= today_start
+    )
+    today_pujas = sum(
+        1 for b in completed
+        if b.created_at and b.created_at.replace(tzinfo=timezone.utc) >= today_start
+    )
 
     return EarningsSummary(
         total_earned=total,
@@ -148,4 +157,6 @@ def earnings(
         pending_payout=0.0,  # Adjust when Razorpay Route is integrated
         this_month=this_month,
         last_month=last_month,
+        today_earned=today_earned,
+        today_pujas=today_pujas,
     )

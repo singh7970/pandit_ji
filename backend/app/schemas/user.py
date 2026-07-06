@@ -60,6 +60,7 @@ class AddressCreate(BaseModel):
 class SendOTPRequest(BaseModel):
     phone: str = Field(..., min_length=10, max_length=15, example="9876543210")
     mode: Optional[str] = Field(None, description="login or signup")
+    role: Optional[str] = Field(None, description="CUSTOMER or PANDIT")
 
 
 class VerifyOTPRequest(BaseModel):

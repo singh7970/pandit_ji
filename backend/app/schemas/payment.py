@@ -25,3 +25,5 @@ class EarningsSummary(BaseModel):
     pending_payout: float
     this_month: float
     last_month: float
+    today_earned: float
+    today_pujas: int

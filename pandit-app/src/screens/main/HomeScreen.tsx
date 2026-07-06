@@ -13,9 +13,13 @@ export default function HomeScreen({ navigation }: any) {
 
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [todayEarnings, setTodayEarnings] = useState(0);
+  const [todayPujasCount, setTodayPujasCount] = useState(0);
 
-  const fetchBookings = () => {
-    api.getMyBookings()
+  const fetchDashboardData = () => {
+    setLoading(true);
+    
+    const bookingsPromise = api.getMyBookings()
       .then((res) => {
         setBookings(res.data.items || res.data);
       })
@@ -39,12 +43,24 @@ export default function HomeScreen({ navigation }: any) {
             address: 'Villa 52, Lotus Boulevard, Sector 150, Noida',
           }
         ]);
+      });
+
+    const earningsPromise = api.getEarnings()
+      .then((res) => {
+        setTodayEarnings(res.data.today_earned || 0);
+        setTodayPujasCount(res.data.today_pujas || 0);
       })
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        console.warn("Failed to fetch real-time earnings, using fallback:", err);
+        setTodayEarnings(0);
+        setTodayPujasCount(0);
+      });
+
+    Promise.all([bookingsPromise, earningsPromise]).finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    fetchBookings();
+    fetchDashboardData();
   }, []);
 
   const handleToggleDuty = (val: boolean) => {
@@ -106,9 +122,13 @@ export default function HomeScreen({ navigation }: any) {
           <Text style={styles.earningsLabel}>{t('todayEarnings')}</Text>
           <View style={styles.earningsRow}>
             <IndianRupee size={32} color="#FFFFFF" />
-            <Text style={styles.earningsAmount}>3,450</Text>
+            <Text style={styles.earningsAmount}>
+              {todayEarnings.toLocaleString('en-IN')}
+            </Text>
           </View>
-          <Text style={styles.earningsSub}>2 Pujas completed today</Text>
+          <Text style={styles.earningsSub}>
+            {todayPujasCount} {todayPujasCount === 1 ? 'Puja' : 'Pujas'} completed today
+          </Text>
         </View>
 
         {/* Upcoming Bookings Section */}

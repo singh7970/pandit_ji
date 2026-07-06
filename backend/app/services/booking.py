@@ -46,13 +46,16 @@ def find_top_pandits(
             PanditProfile.status == "ACTIVE",
         )
         .join(User, User.id == PanditProfile.user_id)
-        .filter(User.city == city, User.is_active == True)
+        .filter(func.lower(User.city) == func.lower(city), User.is_active == True)
         .all()
     )
 
-    # Filter by specialisation (contains puja_id string)
+    # Filter by specialisation (contains puja_id string, or if specialisations is empty/contains "all")
     puja_id_str = str(puja_id)
-    profiles = [p for p in profiles if p.specialisations and puja_id_str in p.specialisations]
+    profiles = [
+        p for p in profiles 
+        if not p.specialisations or len(p.specialisations) == 0 or puja_id_str in p.specialisations or "all" in p.specialisations
+    ]
 
     if not profiles:
         return []

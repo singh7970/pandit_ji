@@ -27,16 +27,32 @@ async def send_otp(
     if body.mode:
         from app.models.user import User
         user = db.query(User).filter(User.phone == body.phone).first()
-        if body.mode == "signup" and user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Mobile number is already registered. Please login instead.",
-            )
-        elif body.mode == "login" and not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Mobile number is not registered. Please sign up first.",
-            )
+        if body.mode == "signup":
+            if body.role == "PANDIT":
+                if user and user.pandit_profile:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Mobile number is already registered as a Pandit. Please login instead.",
+                    )
+            else:
+                if user:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Mobile number is already registered. Please login instead.",
+                    )
+        elif body.mode == "login":
+            if body.role == "PANDIT":
+                if not user or not user.pandit_profile:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Mobile number is not registered as a Pandit. Please sign up first.",
+                    )
+            else:
+                if not user:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Mobile number is not registered. Please sign up first.",
+                    )
 
     if is_rate_limited(body.phone):
         raise HTTPException(
