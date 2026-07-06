@@ -24,9 +24,6 @@ class User(Base):
     bookings_as_pandit = relationship(
         "Booking", foreign_keys="Booking.pandit_id", back_populates="pandit"
     )
-    reviews_given = relationship(
-        "Review", foreign_keys="Review.customer_id", back_populates="customer"
-    )
     reviews_received = relationship(
         "Review", foreign_keys="Review.pandit_id", back_populates="pandit"
     )
