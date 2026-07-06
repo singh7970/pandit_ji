@@ -11,7 +11,7 @@ class Booking(Base):
     __tablename__ = "bookings"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    customer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    customer_id = Column(UUID(as_uuid=True), ForeignKey("customers.id"), nullable=False)
     pandit_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     puja_id = Column(UUID(as_uuid=True), ForeignKey("pujas.id"), nullable=False)
     city = Column(String(50), nullable=True)
@@ -31,9 +31,10 @@ class Booking(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    customer = relationship("User", foreign_keys=[customer_id], back_populates="bookings_as_customer")
+    customer = relationship("Customer", foreign_keys=[customer_id], back_populates="bookings")
     pandit = relationship("User", foreign_keys=[pandit_id], back_populates="bookings_as_pandit")
     puja = relationship("Puja", back_populates="bookings")
     payment = relationship("Payment", back_populates="booking", uselist=False)
     review = relationship("Review", back_populates="booking", uselist=False)
     strikes = relationship("Strike", back_populates="booking")
+

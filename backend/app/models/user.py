@@ -21,9 +21,6 @@ class User(Base):
 
     # Relationships
     pandit_profile = relationship("PanditProfile", back_populates="user", uselist=False)
-    bookings_as_customer = relationship(
-        "Booking", foreign_keys="Booking.customer_id", back_populates="customer"
-    )
     bookings_as_pandit = relationship(
         "Booking", foreign_keys="Booking.pandit_id", back_populates="pandit"
     )

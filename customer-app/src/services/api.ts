@@ -38,9 +38,10 @@ apiClient.interceptors.request.use(
 
 export const api = {
   // Auth
-  sendOtp: (phone: string, mode?: string) => apiClient.post('/auth/send-otp', { phone, mode }),  // no role: any registered user can login on customer app
-  verifyOtp: (phone: string, otp: string, name?: string) => apiClient.post('/auth/verify-otp', { phone, otp, name }),
-  refreshToken: (refreshToken: string) => apiClient.post('/auth/refresh', { refresh_token: refreshToken }),
+  sendOtp: (phone: string, mode?: string) => apiClient.post('/customer-auth/send-otp', { phone, mode }),
+  verifyOtp: (phone: string, otp: string, name?: string, city?: string) => apiClient.post('/customer-auth/verify-otp', { phone, otp, name, city }),
+
+  refreshToken: (refreshToken: string) => apiClient.post('/customer-auth/refresh', { refresh_token: refreshToken }),
 
   // User
   getProfile: () => apiClient.get('/users/me'),

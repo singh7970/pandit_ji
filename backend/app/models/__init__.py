@@ -1,6 +1,7 @@
 # Models package — import all models here so SQLAlchemy can register them
 
 from app.models.user import User
+from app.models.customer import Customer
 from app.models.pandit import PanditProfile, AvailabilitySlot
 from app.models.puja import Puja
 from app.models.booking import Booking
@@ -9,6 +10,7 @@ from app.models.review import Review, Strike, Notification, SupportTicket
 
 __all__ = [
     "User",
+    "Customer",
     "PanditProfile",
     "AvailabilitySlot",
     "Puja",

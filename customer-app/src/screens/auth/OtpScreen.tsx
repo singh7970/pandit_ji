@@ -36,7 +36,7 @@ export default function OtpScreen({ route, navigation }: any) {
     // Testing bypass for "123456"
     if (otp === '123456') {
       try {
-        const response = await api.verifyOtp(phone, otp, name);
+        const response = await api.verifyOtp(phone, otp, name, city);
         const { access_token, user } = response.data;
         await login(access_token, user);
         
@@ -68,7 +68,7 @@ export default function OtpScreen({ route, navigation }: any) {
     }
 
     try {
-      const response = await api.verifyOtp(phone, otp, name);
+      const response = await api.verifyOtp(phone, otp, name, city);
       const { access_token, user } = response.data;
       
       // Save tokens and user info in global state + AsyncStorage
@@ -81,7 +81,8 @@ export default function OtpScreen({ route, navigation }: any) {
         } catch (profileErr) {
           console.error("Failed to update profile info:", profileErr);
         }
-      } else {
+      }
+ else {
         if (!user.name || !user.city) {
           navigation.replace('Register');
         }

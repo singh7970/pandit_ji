@@ -15,7 +15,7 @@ class Review(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     booking_id = Column(UUID(as_uuid=True), ForeignKey("bookings.id"), nullable=False, unique=True)
-    customer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    customer_id = Column(UUID(as_uuid=True), ForeignKey("customers.id"), nullable=False)
     pandit_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     rating = Column(Integer, nullable=False)
     comment = Column(Text, nullable=True)
@@ -23,8 +23,9 @@ class Review(Base):
 
     # Relationships
     booking = relationship("Booking", back_populates="review")
-    customer = relationship("User", foreign_keys=[customer_id], back_populates="reviews_given")
+    customer = relationship("Customer", foreign_keys=[customer_id], back_populates="reviews_given")
     pandit = relationship("User", foreign_keys=[pandit_id], back_populates="reviews_received")
+
 
 
 class Strike(Base):

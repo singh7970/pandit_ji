@@ -78,12 +78,44 @@ def get_current_user(
         )
 
     user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found or inactive",
-        )
-    return user
+    if user is not None:
+        return user
+
+    from app.models.customer import Customer
+    customer = db.query(Customer).filter(Customer.id == user_id, Customer.is_active == True).first()
+    if customer is not None:
+        return customer
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="User or Customer not found or inactive",
+    )
+
+
+def get_current_customer(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db),
+):
+    """Returns the current Customer from JWT token (customers table)."""
+    from app.models.customer import Customer
+    from app.core.redis import redis_client
+
+    token = credentials.credentials
+    if redis_client.exists(f"blacklist:{token}"):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has been revoked")
+
+    payload = decode_token(token)
+    if payload.get("type") != "access":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type")
+
+    customer_id: str = payload.get("sub")
+    if customer_id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+
+    customer = db.query(Customer).filter(Customer.id == customer_id, Customer.is_active == True).first()
+    if customer is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Customer not found or inactive")
+    return customer
 
 
 def require_role(*roles: str):

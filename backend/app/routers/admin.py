@@ -11,6 +11,7 @@ from app.models.booking import Booking
 from app.models.pandit import PanditProfile
 from app.models.payment import Payment
 from app.models.user import User
+from app.models.customer import Customer
 from app.utils.firebase import send_multicast_notification
 
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -174,7 +175,7 @@ def analytics(
 ):
     total_bookings = db.query(Booking).count()
     completed = db.query(Booking).filter(Booking.status == "COMPLETED").count()
-    total_customers = db.query(User).filter(User.role == "CUSTOMER").count()
+    total_customers = db.query(Customer).count()
     total_pandits = db.query(PanditProfile).filter(PanditProfile.status == "ACTIVE").count()
     pending_pandits = db.query(PanditProfile).filter(PanditProfile.status == "PENDING").count()
 
@@ -277,7 +278,7 @@ def all_customers(
     db: Session = Depends(get_db),
     _: User = Depends(_require_admin),
 ):
-    customers = db.query(User).filter(User.role == "CUSTOMER").order_by(User.created_at.desc()).all()
+    customers = db.query(Customer).order_by(Customer.created_at.desc()).all()
     return customers
 
 

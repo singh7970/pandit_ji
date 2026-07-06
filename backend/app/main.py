@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from app.routers import auth, users, pujas, bookings, payments, pandits, admin
+from app.routers import auth, users, pujas, bookings, payments, pandits, admin, customer_auth
 from app.core.database import engine, Base
 
 
@@ -29,6 +29,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(customer_auth.router, prefix="/customer-auth", tags=["customer-auth"])
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(pujas.router, prefix="/pujas", tags=["pujas"])
 app.include_router(bookings.router, prefix="/bookings", tags=["bookings"])
