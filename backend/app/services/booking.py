@@ -51,12 +51,28 @@ def find_top_pandits(
         .all()
     )
 
-    # Filter by specialisation (contains puja_id string, or if specialisations is empty/contains "all")
+    # Fetch puja name so we can also match by name (onboarding stores puja names, not UUIDs)
+    from app.models.puja import Puja
+    puja_obj = db.query(Puja).filter(Puja.id == puja_id).first()
+    puja_name = puja_obj.name_en.lower() if puja_obj and puja_obj.name_en else ""
+    puja_name_hi = puja_obj.name_hi.lower() if puja_obj and puja_obj.name_hi else ""
     puja_id_str = str(puja_id)
-    profiles = [
-        p for p in profiles 
-        if not p.specialisations or len(p.specialisations) == 0 or puja_id_str in p.specialisations or "all" in p.specialisations
-    ]
+
+    # Filter by specialisation:
+    # Match if empty (accepts all), or by puja UUID, or by puja name (en/hi), or contains "all"
+    def matches_puja(p: PanditProfile) -> bool:
+        specs = p.specialisations or []
+        if not specs:
+            return True  # No restriction — serves all pujas
+        specs_lower = [s.lower() for s in specs]
+        return (
+            puja_id_str in specs
+            or puja_name in specs_lower
+            or puja_name_hi in specs_lower
+            or "all" in specs_lower
+        )
+
+    profiles = [p for p in profiles if matches_puja(p)]
 
     if not profiles:
         return []

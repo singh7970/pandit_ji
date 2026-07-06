@@ -81,18 +81,19 @@ def get_available_pandits(
     result = []
     for pandit in pandits:
         profile = db.query(PanditProfile).filter(PanditProfile.user_id == pandit.id).first()
+        # Flatten response to match frontend Pandit interface exactly
         result.append({
-            "user_id": str(pandit.id),
-            "name": pandit.name,
+            "id": str(pandit.id),
+            "name": pandit.name or "Pandit",
             "city": pandit.city,
-            "profile": {
-                "tier": profile.tier if profile else "VERIFIED",
-                "rating_avg": profile.rating_avg if profile else 0.0,
-                "total_pujas": profile.total_pujas if profile else 0,
-                "specialisations": profile.specialisations if profile else [],
-                "languages": profile.languages if profile else [],
-                "photo_url": profile.photo_url if profile else None,
-            },
+            "rating_avg": profile.rating_avg if profile else 0.0,
+            "experience_years": profile.experience_years if profile else 0,
+            "sampraday": profile.sampraday if profile else "",
+            "languages": profile.languages if profile else [],
+            "photo_url": profile.photo_url if profile else None,
+            "tier": profile.tier if profile else "VERIFIED",
+            "total_pujas": profile.total_pujas if profile else 0,
+            "specialisations": profile.specialisations if profile else [],
         })
     return result
 
