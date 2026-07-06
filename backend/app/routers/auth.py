@@ -29,25 +29,30 @@ async def send_otp(
         user = db.query(User).filter(User.phone == body.phone).first()
         if body.mode == "signup":
             if body.role == "PANDIT":
+                # Block pandit signup only if they already have a pandit profile
                 if user and user.pandit_profile:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="Mobile number is already registered as a Pandit. Please login instead.",
                     )
             else:
-                if user:
+                # Customer signup: only block if already a CUSTOMER.
+                # If user exists as PANDIT, they can still register/use the customer app.
+                if user and user.role == "CUSTOMER":
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="Mobile number is already registered. Please login instead.",
                     )
         elif body.mode == "login":
             if body.role == "PANDIT":
+                # Pandit login: must have a pandit profile
                 if not user or not user.pandit_profile:
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail="Mobile number is not registered as a Pandit. Please sign up first.",
                     )
             else:
+                # Customer login: any registered user (CUSTOMER or PANDIT) can log in
                 if not user:
                     raise HTTPException(
                         status_code=status.HTTP_404_NOT_FOUND,
