@@ -26,7 +26,7 @@ export default function OnboardingScreen({ navigation }: any) {
   const [submitting, setSubmitting] = useState(false);
 
   // Form states
-  const [name, setName] = useState('');
+  const [name, setName] = useState(user?.name || '');
   const [city, setCity] = useState(CITIES[0]);
   const [bio, setBio] = useState('');
   const [sampraday, setSampraday] = useState(SAMPRADAYAS[0]);
