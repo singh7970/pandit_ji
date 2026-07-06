@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Switch, Alert, Share, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, Alert, Share, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useTranslation } from 'react-i18next';
 import { User, MapPin, Globe, Bell, LogOut, Shield, HelpCircle, Share2, ChevronRight } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';

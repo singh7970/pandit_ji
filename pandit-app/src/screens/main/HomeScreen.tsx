@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Switch, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useTranslation } from 'react-i18next';
 import { Power, IndianRupee, Calendar, Clock, MapPin, Sparkles, Star } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';

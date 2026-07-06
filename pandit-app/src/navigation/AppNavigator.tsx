@@ -25,8 +25,11 @@ import ActiveBooking from '../screens/booking/ActiveBooking';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 // Bottom Tab Navigator
 function TabNavigator() {
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={{
@@ -37,8 +40,8 @@ function TabNavigator() {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1.5,
           borderTopColor: '#F5ECE0',
-          height: Platform.OS === 'ios' ? 88 : 68,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
@@ -47,6 +50,7 @@ function TabNavigator() {
         },
       }}
     >
+
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, SafeAreaView, FlatList, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, FlatList, Image, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useTranslation } from 'react-i18next';
 import { Search, MapPin, ChevronRight, Bell, Sparkles } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useBookingStore } from '../../store/bookingStore';
 import { api, Puja } from '../../services/api';
+
 
 const { width } = Dimensions.get('window');
 

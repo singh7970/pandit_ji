@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { useTranslation } from 'react-i18next';
 import { Calendar, MapPin, IndianRupee, Clock, Star, ChevronRight } from 'lucide-react-native';
 import { api } from '../../services/api';
