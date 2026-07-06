@@ -1,9 +1,14 @@
-from fastapi import FastAPI
+import traceback
+from fastapi import FastAPI, Request, Depends
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
 from app.routers import auth, users, pujas, bookings, payments, pandits, admin, customer_auth
-from app.core.database import engine, Base
+from app.core.database import engine, Base, get_db
 
 
 @asynccontextmanager
@@ -19,6 +24,18 @@ app = FastAPI(
     description="On-demand religious services marketplace API",
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(Exception)
+async def debug_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": str(exc),
+            "traceback": "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+        }
+    )
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,5 +61,15 @@ def root():
 
 
 @app.get("/health")
-def health():
-    return {"status": "healthy"}
+def health(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e),
+            "traceback": "".join(traceback.format_exception(type(e), e, e.__traceback__))
+        }
+
