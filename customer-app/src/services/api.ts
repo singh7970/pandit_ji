@@ -38,7 +38,7 @@ apiClient.interceptors.request.use(
 
 export const api = {
   // Auth
-  sendOtp: (phone: string, mode?: string) => apiClient.post('/auth/send-otp', { phone, mode, role: 'CUSTOMER' }),
+  sendOtp: (phone: string, mode?: string) => apiClient.post('/auth/send-otp', { phone, mode }),  // no role: any registered user can login on customer app
   verifyOtp: (phone: string, otp: string, name?: string) => apiClient.post('/auth/verify-otp', { phone, otp, name }),
   refreshToken: (refreshToken: string) => apiClient.post('/auth/refresh', { refresh_token: refreshToken }),
 
@@ -73,7 +73,7 @@ export const api = {
   verifyPaymentWebhook: (payload: any) => apiClient.post('/payments/webhook', payload),
 
   // Pandits
-  getAvailablePandits: (params: { city: string; date: string; puja_id: string }) => 
+  getAvailablePandits: (params: { city: string; scheduled_at: string; puja_id: string }) => 
     apiClient.get('/pandits/available', { params }),
   getPanditProfile: (id: string) => apiClient.get(`/pandits/${id}`),
 };

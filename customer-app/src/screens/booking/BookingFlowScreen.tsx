@@ -164,10 +164,22 @@ export default function BookingFlowScreen({ navigation }: any) {
 
   const fetchPandits = () => {
     setLoadingPandits(true);
-    // Fetch from API
+    // Build scheduled_at ISO string from selected date and time
+    let hourNum = parseInt(selectedHour);
+    if (selectedPeriod === 'PM' && hourNum < 12) hourNum += 12;
+    else if (selectedPeriod === 'AM' && hourNum === 12) hourNum = 0;
+    const scheduledDate = new Date(
+      selectedDateObj.getFullYear(),
+      selectedDateObj.getMonth(),
+      selectedDateObj.getDate(),
+      hourNum,
+      parseInt(selectedMinute)
+    );
+    const scheduledAtISO = scheduledDate.toISOString();
+
     api.getAvailablePandits({
       city: 'Delhi NCR',
-      date: localDate,
+      scheduled_at: scheduledAtISO,
       puja_id: selectedPuja?.id || '',
     })
       .then((res) => {
