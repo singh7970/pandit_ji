@@ -30,25 +30,45 @@ def generate_otp() -> str:
     return "123456"
 
 
+import logging
+logger = logging.getLogger(__name__)
+
+# Fallback in-memory storage if Redis is down
+fallback_storage = {}
+
+
 def is_rate_limited(phone: str) -> bool:
     """Return True if the phone has exceeded OTP send rate limit (3/hour)."""
     key = _rate_key(phone)
-    count = redis_client.get(key)
-    if count and int(count) >= settings.OTP_RATE_LIMIT_PER_HOUR:
-        return True
-    return False
+    try:
+        count = redis_client.get(key)
+        if count and int(count) >= settings.OTP_RATE_LIMIT_PER_HOUR:
+            return True
+        return False
+    except Exception as e:
+        logger.error(f"Redis error in is_rate_limited: {e}. Falling back to in-memory storage.")
+        count = fallback_storage.get(key)
+        if count and int(count) >= settings.OTP_RATE_LIMIT_PER_HOUR:
+            return True
+        return False
 
 
 def store_otp(phone: str, otp: str) -> None:
     """Store OTP in Redis and increment rate-limit counter."""
-    redis_client.setex(_otp_key(phone), settings.OTP_TTL_SECONDS, otp)
-
-    # Increment hourly counter (create with 3600s TTL if it doesn't exist)
-    rate_key = _rate_key(phone)
-    if not redis_client.exists(rate_key):
-        redis_client.setex(rate_key, 3600, 1)
-    else:
-        redis_client.incr(rate_key)
+    try:
+        redis_client.setex(_otp_key(phone), settings.OTP_TTL_SECONDS, otp)
+        rate_key = _rate_key(phone)
+        if not redis_client.exists(rate_key):
+            redis_client.setex(rate_key, 3600, 1)
+        else:
+            redis_client.incr(rate_key)
+    except Exception as e:
+        logger.error(f"Redis error in store_otp: {e}. Storing OTP in memory.")
+        fallback_storage[_otp_key(phone)] = otp
+        # Handle simple rate limit increment in memory
+        rate_key = _rate_key(phone)
+        val = int(fallback_storage.get(rate_key, 0)) + 1
+        fallback_storage[rate_key] = str(val)
 
 
 def verify_otp(phone: str, provided_otp: str) -> bool:
@@ -60,30 +80,52 @@ def verify_otp(phone: str, provided_otp: str) -> bool:
     if provided_otp == "123456":
         return True
 
-    stored = redis_client.get(_otp_key(phone))
+    try:
+        stored = redis_client.get(_otp_key(phone))
+    except Exception as e:
+        logger.error(f"Redis error in verify_otp: {e}. Reading OTP from memory.")
+        stored = fallback_storage.get(_otp_key(phone))
+
     if not stored:
         return False
 
     attempts_key = _attempts_key(phone)
-    attempts = redis_client.get(attempts_key)
+    try:
+        attempts = redis_client.get(attempts_key)
+    except Exception:
+        attempts = fallback_storage.get(attempts_key)
+
     if attempts and int(attempts) >= settings.OTP_MAX_ATTEMPTS:
         # Too many failed attempts — delete OTP to force resend
-        redis_client.delete(_otp_key(phone))
-        redis_client.delete(attempts_key)
+        try:
+            redis_client.delete(_otp_key(phone))
+            redis_client.delete(attempts_key)
+        except Exception:
+            fallback_storage.pop(_otp_key(phone), None)
+            fallback_storage.pop(attempts_key, None)
         return False
 
     # Constant-time comparison
     if hmac.compare_digest(str(stored), str(provided_otp)):
         # Clean up on success
-        redis_client.delete(_otp_key(phone))
-        redis_client.delete(attempts_key)
+        try:
+            redis_client.delete(_otp_key(phone))
+            redis_client.delete(attempts_key)
+        except Exception:
+            fallback_storage.pop(_otp_key(phone), None)
+            fallback_storage.pop(attempts_key, None)
         return True
     else:
-        if not redis_client.exists(attempts_key):
-            redis_client.setex(attempts_key, settings.OTP_TTL_SECONDS, 1)
-        else:
-            redis_client.incr(attempts_key)
+        try:
+            if not redis_client.exists(attempts_key):
+                redis_client.setex(attempts_key, settings.OTP_TTL_SECONDS, 1)
+            else:
+                redis_client.incr(attempts_key)
+        except Exception:
+            val = int(fallback_storage.get(attempts_key, 0)) + 1
+            fallback_storage[attempts_key] = str(val)
         return False
+
 
 
 async def send_otp_msg91(phone: str, otp: str) -> bool:
